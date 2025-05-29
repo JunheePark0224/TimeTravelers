@@ -1,11 +1,8 @@
 import React from 'react';
+import HomePage from './HomePage/HomePage';
 
 function App() {
-  return (
-    <div>
-      <h1>Hello, Time Travelers!</h1>
-    </div>
-  );
+  return <HomePage />;
 }
 
 export default App;
