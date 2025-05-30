@@ -19,13 +19,34 @@ jobs:
           cd frontend
           npm install
 
-      - name: Run frontend tests
+      - name: Run frontend tests with coverage
         run: |
           cd frontend
           npm test -- --coverage --watchAll=false
 
-      - name: Upload coverage results
-        uses: actions/upload-artifact@v4
+      - name: Read coverage summary
+        id: coverage
+        run: |
+          SUMMARY=$(node -e "
+            const summary = require('./frontend/coverage/coverage-summary.json').total;
+            console.log(
+              'Statements: ' + summary.statements.pct + '% (' + summary.statements.covered + '/' + summary.statements.total + ')\\n' +
+              'Branches:   ' + summary.branches.pct + '% (' + summary.branches.covered + '/' + summary.branches.total + ')\\n' +
+              'Functions:  ' + summary.functions.pct + '% (' + summary.functions.covered + '/' + summary.functions.total + ')\\n' +
+              'Lines:      ' + summary.lines.pct + '% (' + summary.lines.covered + '/' + summary.lines.total + ')'
+            );
+          ")
+          echo "summary<<EOF" >> $GITHUB_OUTPUT
+          echo "$SUMMARY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Post coverage as PR comment
+        uses: marocchino/sticky-pull-request-comment@v2
         with:
-          name: coverage-report
-          path: frontend/coverage
+          header: test-coverage
+          message: |
+            ✅ All tests passed!
+            🧪 Test Coverage Summary:
+            ```
+            ${{ steps.coverage.outputs.summary }}
+            ```
