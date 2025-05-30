@@ -28,22 +28,18 @@ jobs:
           npm test -- --coverage --watchAll=false
 
       - name: Read coverage summary
-        id: coverage
-        run: |
-          SUMMARY=$(node -e "
-            const fs = require('fs');
-            const data = JSON.parse(fs.readFileSync('frontend/coverage/coverage-summary.json'));
-            const total = data.total;
-            console.log(
-              'Statements: ' + total.statements.pct + '%\\n' +
-              'Branches: ' + total.branches.pct + '%\\n' +
-              'Functions: ' + total.functions.pct + '%\\n' +
-              'Lines: ' + total.lines.pct + '%'
-            );
-          ")
-          echo "summary<<EOF" >> $GITHUB_OUTPUT
-          echo "$SUMMARY" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+  id: coverage
+  run: |
+    if [ -f frontend/coverage/coverage-summary.json ]; then
+      SUMMARY=$(cat frontend/coverage/coverage-summary.json)
+      echo "summary<<EOF" >> $GITHUB_OUTPUT
+      echo "$SUMMARY" >> $GITHUB_OUTPUT
+      echo "EOF" >> $GITHUB_OUTPUT
+    else
+      echo "summary<<EOF" >> $GITHUB_OUTPUT
+      echo "No coverage report found." >> $GITHUB_OUTPUT
+      echo "EOF" >> $GITHUB_OUTPUT
+    fi
 
       - name: Post test coverage as comment
         uses: marocchino/sticky-pull-request-comment@v2
