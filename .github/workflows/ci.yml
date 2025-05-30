@@ -7,10 +7,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -28,19 +31,21 @@ jobs:
         id: coverage
         run: |
           SUMMARY=$(node -e "
-            const summary = require('./frontend/coverage/coverage-summary.json').total;
+            const fs = require('fs');
+            const data = JSON.parse(fs.readFileSync('frontend/coverage/coverage-summary.json'));
+            const total = data.total;
             console.log(
-              'Statements: ' + summary.statements.pct + '% (' + summary.statements.covered + '/' + summary.statements.total + ')\\n' +
-              'Branches:   ' + summary.branches.pct + '% (' + summary.branches.covered + '/' + summary.branches.total + ')\\n' +
-              'Functions:  ' + summary.functions.pct + '% (' + summary.functions.covered + '/' + summary.functions.total + ')\\n' +
-              'Lines:      ' + summary.lines.pct + '% (' + summary.lines.covered + '/' + summary.lines.total + ')'
+              'Statements: ' + total.statements.pct + '%\\n' +
+              'Branches: ' + total.branches.pct + '%\\n' +
+              'Functions: ' + total.functions.pct + '%\\n' +
+              'Lines: ' + total.lines.pct + '%'
             );
           ")
           echo "summary<<EOF" >> $GITHUB_OUTPUT
           echo "$SUMMARY" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Post coverage as PR comment
+      - name: Post test coverage as comment
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: test-coverage
