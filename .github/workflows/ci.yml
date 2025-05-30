@@ -23,3 +23,9 @@ jobs:
         run: |
           cd frontend
           npm test -- --coverage --watchAll=false
+
+      - name: Upload coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: frontend/coverage
