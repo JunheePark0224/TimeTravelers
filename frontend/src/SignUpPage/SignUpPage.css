@@ -1,0 +1,243 @@
+/* Bangers 폰트 클래스 */
+.bangers-regular {
+    font-family: "Bangers", system-ui;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+  /* 메인 컨테이너 */
+  .signup-container {
+    position: relative;
+    width: 100vw;
+    min-height: 100vh;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    padding: 20px 0;
+  }
+  
+  /* 어두운 오버레이 */
+  .overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 10, 0.7);
+    z-index: 1;
+  }
+  
+  /* 사인업 컨텐츠 */
+  .signup-content {
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 248, 240, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  /* 헤더 영역 */
+  .signup-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .signup-logo {
+    width: 150px;
+    height: auto;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.3));
+  }
+  
+  .signup-title {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #333;
+    letter-spacing: 1px;
+  }
+  
+  .signup-subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 0;
+    font-style: italic;
+  }
+  
+  /* 폼 영역 */
+  .signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .form-group label {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #333;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  
+  .form-group input {
+    padding: 15px;
+    font-size: 1rem;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    font-family: 'Courier New', Courier, monospace;
+    transition: all 0.3s ease;
+  }
+  
+  .form-group input:focus {
+    outline: none;
+    border-color: #b48a78;
+    box-shadow: 0 0 0 3px rgba(180, 138, 120, 0.2);
+  }
+  
+  .form-group input.error {
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
+  }
+  
+  .error-message {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin-top: 5px;
+  }
+  
+  .birth-hint {
+    font-size: 0.9rem;
+    color: #888;
+    margin: 5px 0 0 0;
+    font-style: italic;
+  }
+  
+  /* 버튼 영역 */
+  .form-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+  }
+  
+  .signup-btn, .back-btn {
+    padding: 15px 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .signup-btn {
+    background: #b48a78;
+    color: white;
+  }
+  
+  .signup-btn:hover:not(:disabled) {
+    background: #9b6c58;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(180, 138, 120, 0.4);
+  }
+  
+  .signup-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .back-btn {
+    background: transparent;
+    color: #666;
+    border: 2px solid #ddd;
+  }
+  
+  .back-btn:hover:not(:disabled) {
+    background: #f8f8f8;
+    border-color: #bbb;
+  }
+  
+  .back-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  /* 로딩 스피너 */
+  .loading-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* 푸터 */
+  .signup-footer {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+  
+  .signup-footer p {
+    color: #666;
+    margin: 0;
+  }
+  
+  .login-link {
+    color: #b48a78;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .login-link:hover {
+    text-decoration: underline;
+  }
+  
+  /* 반응형 디자인 */
+  @media (max-width: 768px) {
+    .signup-content {
+      padding: 30px 20px;
+      margin: 10px;
+    }
+    
+    .signup-title {
+      font-size: 2rem;
+    }
+    
+    .form-buttons {
+      gap: 12px;
+    }
+  }
+  
+  @media (max-height: 700px) {
+    .signup-container {
+      align-items: flex-start;
+      padding: 20px 0;
+    }
+  }
