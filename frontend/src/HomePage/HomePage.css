@@ -72,19 +72,9 @@ body, html {
   transition: all 2s ease-in-out;
 }
 
-/* 호버 시 회전 애니메이션 */
+/* 호버 시 회전 애니메이션 - 기본 제거 */
 .logo-spinning {
-  animation: spin 2s linear infinite !important;
-}
-
-/* 회전 애니메이션 */
-@keyframes spin {
-  0% { 
-    transform: translateX(-50%) rotate(0deg); 
-  }
-  100% { 
-    transform: translateX(-50%) rotate(360deg); 
-  }
+  animation: none !important;
 }
 
 /* 로고가 start 상태일 때의 회전 */
@@ -92,12 +82,29 @@ body, html {
   animation: spinStart 2s linear infinite !important;
 }
 
+/* 로고가 moving/final 상태일 때의 회전 */
+.logo-moving.logo-spinning,
+.logo-final.logo-spinning {
+  animation: spinFinal 2s linear infinite !important;
+}
+
+/* start 상태용 회전 애니메이션 */
 @keyframes spinStart {
   0% { 
     transform: translate(-50%, -50%) scale(2) rotate(0deg); 
   }
   100% { 
     transform: translate(-50%, -50%) scale(2) rotate(360deg); 
+  }
+}
+
+/* moving/final 상태용 회전 애니메이션 */
+@keyframes spinFinal {
+  0% { 
+    transform: translateX(-50%) scale(1) rotate(0deg); 
+  }
+  100% { 
+    transform: translateX(-50%) scale(1) rotate(360deg); 
   }
 }
 

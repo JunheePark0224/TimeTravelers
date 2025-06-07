@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
 
 function HomePage() {
+  const navigate = useNavigate();
   const [logoPhase, setLogoPhase] = useState('start'); // 'start' -> 'moving' -> 'done'
   const [showContent, setShowContent] = useState(false);
   const [showHowTo, setShowHowTo] = useState(false);
@@ -18,6 +20,14 @@ function HomePage() {
       clearTimeout(timer3);
     };
   }, []);
+
+  const handleSignUp = () => {
+    navigate('/signup');
+  };
+
+  const handleLogin = () => {
+    alert('Login coming soon!');
+  };
 
   return (
     <div
@@ -88,8 +98,8 @@ function HomePage() {
 
       {showContent && (
         <div className="auth-buttons fade-in-delayed">
-          <button onClick={() => alert('Sign up coming soon!')}>Sign Up</button>
-          <button onClick={() => alert('Login coming soon!')}>Login</button>
+          <button onClick={handleSignUp}>Sign Up</button>
+          <button onClick={handleLogin}>Login</button>
         </div>
       )}
     </div>
