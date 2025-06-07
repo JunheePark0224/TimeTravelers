@@ -1,239 +1,313 @@
 /* 기본 설정 */
 body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: 'Courier New', Courier, monospace;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* 메인 컨테이너 */
+.home-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 어두운 오버레이 */
+.overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 10, 10, 0.6);
+  z-index: 1;
+}
+
+/* 로고: 초기 중앙 상태 */
+.logo-start {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 130px;
+  transform: translate(-50%, -50%) scale(2);
+  z-index: 2;
+  filter: drop-shadow(0 0 10px white);
+  transition: all 2s ease-in-out;
+}
+
+.bangers-regular {
+  font-family: "Bangers", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* 로고: 이동 중 (작아지며 상단으로 올라감) */
+.logo-moving {
+  position: absolute;
+  top: 130px;
+  left: 50%;
+  width: 180px;
+  transform: translateX(-50%) scale(1);
+  z-index: 2;
+  filter: drop-shadow(0 0 10px white);
+  transition: all 2s ease-in-out;
+}
+
+/* 로고: 최종 상단 상태 */
+.logo-final {
+  position: absolute;
+  top: 130px;
+  left: 50%;
+  width: 180px;
+  transform: translateX(-50%) scale(1);
+  z-index: 2;
+  filter: drop-shadow(0 0 10px white);
+  transition: all 2s ease-in-out;
+}
+
+/* 호버 시 회전 애니메이션 */
+.logo-spinning {
+  animation: spin 2s linear infinite !important;
+}
+
+/* 회전 애니메이션 */
+@keyframes spin {
+  0% { 
+    transform: translateX(-50%) rotate(0deg); 
   }
-  
-  /* 메인 컨테이너 */
-  .home-container {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    overflow: hidden;
+  100% { 
+    transform: translateX(-50%) rotate(360deg); 
   }
-  
-  /* 어두운 오버레이 */
-  .overlay {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: rgba(10, 10, 10, 0.6);
-    z-index: 1;
+}
+
+/* 로고가 start 상태일 때의 회전 */
+.logo-start.logo-spinning {
+  animation: spinStart 2s linear infinite !important;
+}
+
+@keyframes spinStart {
+  0% { 
+    transform: translate(-50%, -50%) scale(2) rotate(0deg); 
   }
-  
-  /* 로고: 초기 중앙 상태 (크고 빠르게 회전) */
-  .logo-start {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 130px;
-    transform: translate(-50%, -50%) scale(2);
-    animation: spinFast 8s linear infinite;
-    z-index: 2;
-    filter: drop-shadow(0 0 10px white);
-    transition: all 2s ease-in-out;
+  100% { 
+    transform: translate(-50%, -50%) scale(2) rotate(360deg); 
   }
-  
-  /* 로고: 이동 중 (작아지며 상단으로 올라감) */
-  .logo-moving {
-    position: absolute;
-    top: 130px;
-    left: 50%;
-    width: 100px;
-    transform: translateX(-50%) scale(1);
-    animation: spinFast 8s linear infinite;
-    z-index: 2;
-    filter: drop-shadow(0 0 10px white);
-    transition: all 2s ease-in-out;
+}
+
+/* 콘텐츠 영역 */
+.content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #fff;
+  max-width: 700px;
+  margin-top: -40px;
+}
+
+/* 타이틀 */
+.title {
+  font-size: 4rem;
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+}
+
+/* 서브 타이틀 */
+.subtitle {
+  font-size: 1.7rem;
+  margin-bottom: 25px;
+  font-style: italic;
+  color: #ffffff;
+}
+
+/* 날짜 입력 폼 */
+.date-form {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 40px; /* 캐러셀을 위한 여백 추가 */
+}
+
+/* 날짜 입력창 */
+.date-form input {
+  width: 110px;
+  padding: 12px;
+  background: #fff8f0;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+/* 제출 버튼 */
+.date-form button {
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  background: #b48a78;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.date-form button:hover {
+  transform: scale(1.05);
+  background: #9b6c58;
+}
+
+/* 캐러셀 컨테이너 */
+.carousel-container {
+  width: 100%;
+  max-width: 600px;
+  height: 80px;
+  overflow: hidden;
+  position: relative;
+  margin: 30px auto;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 캐러셀 트랙 */
+.carousel-track {
+  display: flex;
+  width: 200%; /* 10개 아이템 (5개 원본 + 5개 복사본) */
+  height: 100%;
+  animation: slideRight 15s linear infinite;
+}
+
+/* 캐러셀 아이템 */
+.carousel-item {
+  width: 10%; /* 총 10개 아이템이므로 각각 10% */
+  height: 100%;
+  object-fit: cover;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.carousel-item:hover {
+  opacity: 1;
+}
+
+/* 슬라이딩 애니메이션 */
+@keyframes slideRight {
+  0% {
+    transform: translateX(0);
   }
-  
-  /* 로고: 최종 상단 상태 */
-  .logo-final {
-    position: absolute;
-    top: 130px;
-    left: 50%;
-    width: 100px;
-    transform: translateX(-50%) scale(1);
-    animation: spinFast 8s linear infinite;
-    z-index: 2;
-    filter: drop-shadow(0 0 10px white);
+  100% {
+    transform: translateX(-50%); /* 절반만큼 이동하면 원래 위치로 돌아옴 */
   }
-  
-  /* 빠른 회전 애니메이션 */
-  @keyframes spinFast {
-    0% { transform: translate(-50%, -50%) scale(2) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) scale(2) rotate(360deg); }
-  }
-  
-  /* 콘텐츠 영역 */
-  .content {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    color: #fff;
-    max-width: 700px;
-    margin-top: -40px;
-  }
-  
-  /* 타이틀 */
-  .title {
-    font-size: 4rem;
-    margin-bottom: 10px;
-    letter-spacing: 2px;
-  }
-  
-  /* 서브 타이틀 */
-  .subtitle {
-    font-size: 1.7rem;
-    margin-bottom: 25px;
-    font-style: italic;
-    color: #ffffff;
-  }
-  
-  /* 날짜 입력 폼 */
-  .date-form {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  
-  /* 날짜 입력창 */
-  .date-form input {
-    width: 110px;
-    padding: 12px;
-    background: #fff8f0;
-    border: 1px solid #aaa;
-    border-radius: 5px;
-    font-family: inherit;
-    font-size: 1.1rem;
-    text-align: center;
-  }
-  
-  /* 제출 버튼 */
-  .date-form button {
-    padding: 12px 24px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    border: none;
-    background: #b48a78;
-    color: #fff;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-  }
-  
-  .date-form button:hover {
-    transform: scale(1.05);
-    background: #9b6c58;
-  }
-  
-  /* How to use 버튼 */
-  .how-button {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: transparent;
-    color: white;
-    border: 1px solid white;
-    padding: 8px 14px;
-    font-size: 1rem;
-    border-radius: 6px;
-    z-index: 3;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .how-button:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
-  /* 모달 창 */
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    backdrop-filter: blur(4px);
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 10;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  /* 모달 컨텐츠 */
-  .modal-content {
-    background: #fff8f0;
-    padding: 30px;
-    border-radius: 10px;
-    text-align: center;
-    max-width: 400px;
-    box-shadow: 0 0 10px #000;
-  }
-  
-  .modal-content button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background: #333;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  .modal-content button:hover {
-    background: #555;
-  }
-  
-  /* 로그인 / 회원가입 버튼 */
-  .auth-buttons {
-    position: absolute;
-    bottom: 100px;
-    display: flex;
-    gap: 14px;
-    justify-content: center;
-    z-index: 3;
-  }
-  
-  .auth-buttons button {
-    padding: 10px 18px;
-    font-size: 1rem;
-    background: #222;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  .auth-buttons button:hover {
-    background: #444;
-  }
-  
-  /* 요소들 순차 페이드 인 + 위로 올라오기 */
-  .fade-in-delayed {
+}
+
+/* How to use 버튼 */
+.how-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: transparent;
+  color: white;
+  border: 1px solid white;
+  padding: 8px 14px;
+  font-size: 1rem;
+  border-radius: 6px;
+  z-index: 3;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.how-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 모달 창 */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 모달 컨텐츠 */
+.modal-content {
+  background: #fff8f0;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 0 10px #000;
+}
+
+.modal-content button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.modal-content button:hover {
+  background: #555;
+}
+
+/* 로그인 / 회원가입 버튼 */
+.auth-buttons {
+  position: absolute;
+  bottom: 100px;
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  z-index: 3;
+}
+
+.auth-buttons button {
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  background: #8a6650;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.auth-buttons button:hover {
+  background: #6e5142;
+}
+
+/* 요소들 순차 페이드 인 + 위로 올라오기 */
+.fade-in-delayed {
+  opacity: 0;
+  animation: fadeInUp 1.5s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
     opacity: 0;
-    animation: fadeInUp 1.5s ease-out forwards;
+    transform: translateY(20px);
   }
-  
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
+}
