@@ -6,7 +6,7 @@
   }
   
   /* 메인 컨테이너 */
-  .signup-container {
+  .login-container {
     position: relative;
     width: 100vw;
     min-height: 100vh;
@@ -30,41 +30,41 @@
     z-index: 1;
   }
   
-  /* 사인업 컨텐츠 */
-  .signup-content {
+  /* 로그인 컨텐츠 */
+  .login-content {
     position: relative;
     z-index: 2;
     background: rgba(255, 248, 240, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 40px;
-    max-width: 500px;
+    max-width: 450px;
     width: 90%;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
   
   /* 헤더 영역 */
-  .signup-header {
+  .login-header {
     text-align: center;
     margin-bottom: 30px;
   }
   
-  .signup-logo {
-    width: 150px;
+  .login-logo {
+    width: 120px;
     height: auto;
     margin-bottom: 20px;
     filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.3));
   }
   
-  .signup-title {
+  .login-title {
     font-size: 2.5rem;
     margin-bottom: 10px;
     color: #333;
     letter-spacing: 1px;
   }
   
-  .signup-subtitle {
+  .login-subtitle {
     font-size: 1.1rem;
     color: #666;
     margin-bottom: 0;
@@ -72,7 +72,7 @@
   }
   
   /* 폼 영역 */
-  .signup-form {
+  .login-form {
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -118,13 +118,6 @@
     margin-top: 5px;
   }
   
-  .birth-hint {
-    font-size: 0.9rem;
-    color: #888;
-    margin: 5px 0 0 0;
-    font-style: italic;
-  }
-  
   /* 버튼 영역 */
   .form-buttons {
     display: flex;
@@ -133,7 +126,7 @@
     margin-top: 20px;
   }
   
-  .signup-btn, .back-btn {
+  .login-btn, .back-btn {
     padding: 15px 25px;
     font-size: 1.1rem;
     font-weight: bold;
@@ -148,18 +141,18 @@
     gap: 10px;
   }
   
-  .signup-btn {
+  .login-btn {
     background: #b48a78;
     color: white;
   }
   
-  .signup-btn:hover:not(:disabled) {
+  .login-btn:hover:not(:disabled) {
     background: #9b6c58;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(180, 138, 120, 0.4);
   }
   
-  .signup-btn:disabled {
+  .login-btn:disabled {
     background: #ccc;
     cursor: not-allowed;
     transform: none;
@@ -197,19 +190,19 @@
   }
   
   /* 푸터 */
-  .signup-footer {
+  .login-footer {
     text-align: center;
     margin-top: 25px;
     padding-top: 20px;
     border-top: 1px solid #eee;
   }
   
-  .signup-footer p {
+  .login-footer p {
     color: #666;
     margin: 0;
   }
   
-  .login-link {
+  .signup-link {
     color: #b48a78;
     background: none;
     border: none;
@@ -220,17 +213,18 @@
     font-family: inherit;
   }
   
-  .login-link:hover {
+  .signup-link:hover {
     color: #9b6c58;
   }
+  
   /* 반응형 디자인 */
   @media (max-width: 768px) {
-    .signup-content {
+    .login-content {
       padding: 30px 20px;
       margin: 10px;
     }
     
-    .signup-title {
+    .login-title {
       font-size: 2rem;
     }
     
@@ -240,7 +234,7 @@
   }
   
   @media (max-height: 700px) {
-    .signup-container {
+    .login-container {
       align-items: flex-start;
       padding: 20px 0;
     }
