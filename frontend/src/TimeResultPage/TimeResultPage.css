@@ -2,7 +2,10 @@
 
 .newspaper-container {
     min-height: 100vh;
-    background-color: #f5f5dc;
+    background-image: url('/public/resultbackground.jpg');
+    background-size: cover; /* 또는 contain, repeat 등 실험 필요 */
+    background-repeat: repeat;
+    background-attachment: fixed; /* 고정 배경이면 빈티지 느낌 더 증가 */
     padding: 20px;
     font-family: 'Georgia', 'Times New Roman', serif;
   }
@@ -10,14 +13,17 @@
   .newspaper {
     max-width: 1200px;
     margin: 0 auto;
-    background-color: #fefbf3;
-    background-image: 
-      radial-gradient(circle at 1px 1px, rgba(139,69,19,0.08) 1px, transparent 0),
-      linear-gradient(90deg, rgba(139,69,19,0.02) 0px, transparent 1px);
-    background-size: 20px 20px, 1px 1px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    border: 3px solid #333;
-  }
+    background-color: #cbb68b; /* old paper tone */
+    background-image: radial-gradient(circle, rgba(0,0,0,0.03) 1px, transparent 1px),
+                      radial-gradient(circle, rgba(0,0,0,0.03) 1px, transparent 1px);
+    background-size: 3px 3px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.1); /* faded edge 느낌 */
+    border: 1px solid #555;
+    padding: 15px;
+    color: #3b2f2f; /* 고전 신문 느낌 폰트 색상 */
+    animation: timeTravelReveal 2s ease-out forwards;
+    font-family: 'Georgia', 'Times New Roman', serif;
+}
   
   /* 신문 헤더 */
   .newspaper-header {
@@ -241,5 +247,23 @@
     
     .newspaper-info {
       font-size: 10px;
+    }
+  }
+
+  @keyframes timeTravelReveal {
+    0% {
+      transform: scale(0.5) rotate(-10deg);
+      opacity: 0;
+      filter: blur(4px);
+    }
+    50% {
+      transform: scale(1.05) rotate(2deg);
+      opacity: 1;
+      filter: blur(0px);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+      filter: blur(0px);
     }
   }
