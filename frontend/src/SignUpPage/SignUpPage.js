@@ -118,6 +118,10 @@ function SignUpPage() {
     navigate('/');
   };
 
+  const goToLogin = () => {
+    navigate('/login');
+  };
+
   return (
     <div className="signup-container" style={{ backgroundImage: `url(/background.png)` }}>
       <div className="overlay" />
@@ -217,7 +221,7 @@ function SignUpPage() {
         </div>
 
         <div className="signup-footer">
-          <p>Already have an account? <a href="/login" className="login-link">Login here</a></p>
+        <p>Already have an account? <button onClick={goToLogin} className="login-link">Login here</button></p>
         </div>
       </div>
     </div>

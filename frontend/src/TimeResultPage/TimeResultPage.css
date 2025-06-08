@@ -1,0 +1,245 @@
+/* TimeResultPage.css */
+
+.newspaper-container {
+    min-height: 100vh;
+    background-color: #f5f5dc;
+    padding: 20px;
+    font-family: 'Georgia', 'Times New Roman', serif;
+  }
+  
+  .newspaper {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fefbf3;
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(139,69,19,0.08) 1px, transparent 0),
+      linear-gradient(90deg, rgba(139,69,19,0.02) 0px, transparent 1px);
+    background-size: 20px 20px, 1px 1px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    border: 3px solid #333;
+  }
+  
+  /* 신문 헤더 */
+  .newspaper-header {
+    border-bottom: 4px solid #000;
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f8f8;
+  }
+  
+  .newspaper-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  
+  .newspaper-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin: 10px 0;
+    letter-spacing: 3px;
+    color: #000;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .newspaper-date {
+    border-top: 2px solid #000;
+    border-bottom: 2px solid #000;
+    padding: 8px 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+  }
+  
+  /* 메인 레이아웃 */
+  .newspaper-content {
+    display: grid;
+    grid-template-columns: 250px 1fr 250px;
+    gap: 0;
+    padding: 0;
+    min-height: 600px;
+  }
+  
+  /* 왼쪽 사이드바 */
+  .left-sidebar {
+    border-right: 2px solid #000;
+    padding: 20px 15px;
+    background-color: #fefbf3;
+  }
+  
+  /* 메인 컨텐츠 영역 */
+  .main-content {
+    border-right: 2px solid #000;
+    padding: 20px;
+    background-color: #fefbf3;
+  }
+  
+  /* 오른쪽 사이드바 */
+  .right-sidebar {
+    padding: 20px 15px;
+    background-color: #fefbf3;
+  }
+  
+  /* 섹션 공통 스타일 */
+  .news-section {
+    margin-bottom: 30px;
+    border: 2px solid #000;
+    background-color: #fff;
+  }
+  
+  .section-header {
+    background-color: #000;
+    color: #fff;
+    padding: 8px 12px;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+  
+  .section-content {
+    padding: 15px;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  
+  /* 메인 뉴스 스타일 */
+  .breaking-news {
+    margin-bottom: 20px;
+  }
+  
+  .breaking-news h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #000;
+    letter-spacing: 1px;
+  }
+  
+  .news-image {
+    border: 2px solid #333;
+    margin-bottom: 15px;
+    padding: 30px;
+    text-align: center;
+    background-color: #f0f0f0;
+    color: #666;
+  }
+  
+  .news-text {
+    text-align: justify;
+    line-height: 1.6;
+    column-count: 2;
+    column-gap: 20px;
+    column-rule: 1px solid #ccc;
+  }
+  
+  .news-text p {
+    margin-bottom: 15px;
+  }
+  
+  /* 사이드바 섹션들 */
+  .sidebar-section {
+    margin-bottom: 25px;
+  }
+  
+  .sidebar-section:last-child {
+    margin-bottom: 0;
+  }
+  
+  .sidebar-section ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .sidebar-section li {
+    padding: 3px 0;
+    border-bottom: 1px dotted #ccc;
+    font-size: 12px;
+  }
+  
+  .sidebar-section li:last-child {
+    border-bottom: none;
+  }
+  
+  /* 하단 버튼 */
+  .newspaper-footer {
+    border-top: 3px solid #000;
+    padding: 20px;
+    text-align: center;
+    background-color: #f0f0f0;
+  }
+  
+  .back-button {
+    background-color: #000;
+    color: #fff;
+    border: 2px solid #000;
+    padding: 12px 25px;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+  }
+  
+  .back-button:hover {
+    background-color: #fff;
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  
+  /* 반응형 디자인 */
+  @media (max-width: 1024px) {
+    .newspaper-content {
+      grid-template-columns: 200px 1fr 200px;
+    }
+    
+    .newspaper-title {
+      font-size: 2.5rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .newspaper-content {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    
+    .left-sidebar, .right-sidebar {
+      border-right: none;
+      border-top: 2px solid #000;
+    }
+    
+    .main-content {
+      border-right: none;
+      order: -1;
+    }
+    
+    .news-text {
+      column-count: 1;
+    }
+    
+    .newspaper-title {
+      font-size: 2rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .newspaper-container {
+      padding: 10px;
+    }
+    
+    .newspaper-title {
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+    }
+    
+    .newspaper-info {
+      font-size: 10px;
+    }
+  }
