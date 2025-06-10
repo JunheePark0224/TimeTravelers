@@ -1,12 +1,35 @@
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './TimeResultPage.css';
 
-const TimeResultPage = ({ selectedDate = "March 15, 1995", onBackHome }) => {
+const TimeResultPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const selectedDate = location.state?.selectedDate || "March 15, 1995";
+  
+  // 로그인 상태 확인 (실제로는 context나 props로 받아야 함)
+  const isLoggedIn = location.state?.isLoggedIn || false;
+
   const handleBackHome = () => {
-    if (onBackHome) {
-      onBackHome();
+    navigate('/');
+  };
+
+  const handleSaveCapsule = () => {
+    if (isLoggedIn) {
+      // 로그인된 상태면 바로 저장
+      alert('🎉 Time Capsule saved successfully!\nYou can share it with your friends!');
+      // TODO: 실제 저장 API 호출
     } else {
-      window.history.back();
+      // 게스트면 로그인 페이지로 이동 (현재 날짜 정보 전달)
+      navigate('/login', { 
+        state: { 
+          redirectTo: '/timeresult',
+          saveData: {
+            selectedDate: selectedDate,
+            fromSave: true
+          }
+        }
+      });
     }
   };
 
@@ -36,8 +59,8 @@ const TimeResultPage = ({ selectedDate = "March 15, 1995", onBackHome }) => {
               <div className="section-header">WEATHER REPORT</div>
               <div className="section-content">
                 <p><strong>API Calling</strong></p>
-                <p>날씨 API를 불러올 예정입니다.</p>
-                <p><em>Weather data will be loaded via API</em></p>
+                <p>Weather API will be integrated here.</p>
+                <p><em>Historical weather data loading...</em></p>
               </div>
             </div>
 
@@ -46,8 +69,8 @@ const TimeResultPage = ({ selectedDate = "March 15, 1995", onBackHome }) => {
               <div className="section-header">MARKET PRICES</div>
               <div className="section-content">
                 <p><strong>API Calling</strong></p>
-                <p>시장 가격 API를 불러올 예정입니다.</p>
-                <p><em>Market price data will be loaded via API</em></p>
+                <p>Market price API will be integrated here.</p>
+                <p><em>Historical price data loading...</em></p>
               </div>
             </div>
             
@@ -63,20 +86,20 @@ const TimeResultPage = ({ selectedDate = "March 15, 1995", onBackHome }) => {
               <div className="news-image">
                 <div style={{ fontSize: '24px', marginBottom: '10px' }}>📰</div>
                 <p><strong>API Calling</strong></p>
-                <p>뉴스 API를 불러올 예정입니다</p>
+                <p>News API will be integrated here</p>
               </div>
 
               {/* 뉴스 본문 */}
               <div className="news-text">
                 <p><strong>API Calling - News Content</strong></p>
                 <p>
-                  이 섹션에서는 뉴스 API를 통해 {selectedDate}의 주요 뉴스를 불러올 예정입니다.
+                  This section will integrate News API to fetch major headlines and events from {selectedDate}.
                 </p>
                 <p>
-                  News API will be integrated here to fetch major headlines and events from {selectedDate}.
+                  We will display real-time news data covering politics, economics, culture, sports, and other major events from the selected date.
                 </p>
                 <p>
-                  정치, 경제, 문화, 스포츠 등 다양한 분야의 뉴스 데이터를 실시간으로 가져와 표시할 계획입니다.
+                  Historical news data will provide insights into what was happening in the world on your chosen date.
                 </p>
               </div>
             </div>
@@ -91,8 +114,8 @@ const TimeResultPage = ({ selectedDate = "March 15, 1995", onBackHome }) => {
               <div className="section-header">TOP HITS</div>
               <div className="section-content">
                 <p><strong>API Calling</strong></p>
-                <p>음악 차트 API를 불러올 예정입니다.</p>
-                <p><em>Music chart data will be loaded via API</em></p>
+                <p>Music chart API will be integrated here.</p>
+                <p><em>Popular songs data loading...</em></p>
               </div>
             </div>
 
@@ -101,8 +124,8 @@ const TimeResultPage = ({ selectedDate = "March 15, 1995", onBackHome }) => {
               <div className="section-header">CINEMA</div>
               <div className="section-content">
                 <p><strong>API Calling</strong></p>
-                <p>영화 정보 API를 불러올 예정입니다.</p>
-                <p><em>Movie data will be loaded via API</em></p>
+                <p>Movie data API will be integrated here.</p>
+                <p><em>Popular movies data loading...</em></p>
               </div>
             </div>
 
@@ -111,19 +134,32 @@ const TimeResultPage = ({ selectedDate = "March 15, 1995", onBackHome }) => {
               <div className="section-header">DID YOU KNOW?</div>
               <div className="section-content">
                 <p><strong>API Calling</strong></p>
-                <p>역사적 사실 API를 불러올 예정입니다.</p>
-                <p><em>Historical facts will be loaded via API</em></p>
+                <p>Historical facts API will be integrated here.</p>
+                <p><em>Fun facts data loading...</em></p>
               </div>
             </div>
             
           </div>
         </div>
 
-        {/* 하단 버튼 */}
+        {/* 하단 버튼 - 기존 스타일과 통합 */}
         <div className="newspaper-footer">
-          <button onClick={handleBackHome} className="back-button">
-            ← RETURN TO TIME MACHINE
-          </button>
+          <div className="save-capsule-content">
+            <h3 style={{ marginBottom: '10px', color: '#3b2f2f', fontSize: '1.2rem' }}>
+              💎 Want to save this time capsule and share it with friends?
+            </h3>
+            <p style={{ marginBottom: '20px', color: '#666', fontSize: '14px' }}>
+              Log in to save your personal time capsule and share it with friends!
+            </p>
+            <div className="save-buttons">
+              <button onClick={handleSaveCapsule} className="save-capsule-button">
+                {isLoggedIn ? '💾 Save as Time Capsule' : '🔐 Login to Save Capsule'}
+              </button>
+              <button onClick={handleBackHome} className="back-button">
+                ← RETURN TO TIME MACHINE
+              </button>
+            </div>
+          </div>
         </div>
 
       </div>
