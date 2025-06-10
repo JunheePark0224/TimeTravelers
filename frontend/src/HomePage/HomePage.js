@@ -110,9 +110,9 @@ function HomePage() {
         <div className="modal">
           <div className="modal-content">
             <h2>📜 How to Use</h2>
-            <p>1. Enter any date you want to travel to.</p>
-            <p>2. Press 'Time Travel' to see that day's world.</p>
-            <p>3. Log in to save your historical journeys!</p>
+            <p>1.  Enter any date you want to travel to.</p>
+            <p>2.  Press 'Time Travel' to see that day's world.</p>
+            <p>3.  Log in to save your historical journeys!</p>
             <button onClick={() => setShowHowTo(false)}>Close</button>
           </div>
         </div>
