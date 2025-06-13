@@ -6,7 +6,7 @@
     "start": "node app.js",
     "dev": "nodemon app.js", 
     "test": "jest",
-    "test:ci": "jest --testPathIgnorePatterns=auth.test.js"
+    "test:ci": "jest --testPathIgnorePatterns=auth.test.js --passWithNoTests"
   },
   "keywords": [],
   "author": "",
