@@ -94,7 +94,7 @@ jobs:
         if: steps.backend-check.outputs.status == 'ready'
         run: |
           cd backend
-          npm test -- --coverage
+          npm test -- --coverage --forceExit --detectOpenHandles
           
       - name: Test Database Connection
         if: steps.backend-check.outputs.status == 'ready'
