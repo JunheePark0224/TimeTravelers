@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 function LoginPage() {
   const navigate = useNavigate();
   
@@ -59,25 +61,51 @@ function LoginPage() {
     
     setIsLoading(true);
     
-    // 여기에 실제 로그인 API 호출 로직 추가
     try {
-      // 임시로 2초 딜레이
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // 로그인 성공 메시지
-      alert(`🎉 Welcome back!\n\nYou have successfully logged in!`);
-      
-      // 잠시 후 자동으로 홈페이지로 이동
-      setTimeout(() => {
-        navigate('/', { state: { 
-          isLoggedIn: true, 
-          userName: formData.email.split('@')[0], // 이메일 앞부분을 이름으로 사용
-          loginMethod: 'login'
-        }});
-      }, 1000); // 1초 후 자동 이동
-      
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // 세션 쿠키 포함
+        body: JSON.stringify(formData)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // 로그인 성공 메시지
+        alert(`🎉 Welcome back, ${result.user.name}!\n\nYou have successfully logged in!`);
+        
+        // 사용자 정보를 localStorage에 저장 (선택사항)
+        localStorage.setItem('user', JSON.stringify(result.user));
+        
+        // 잠시 후 자동으로 홈페이지로 이동
+        setTimeout(() => {
+          navigate('/', { 
+            state: { 
+              isLoggedIn: true, 
+              userName: result.user.name,
+              userEmail: result.user.email,
+              loginMethod: 'login'
+            }
+          });
+        }, 1000); // 1초 후 자동 이동
+        
+      } else {
+        // 로그인 실패 처리
+        if (result.message.includes('email') || result.message.includes('password')) {
+          setErrors({
+            email: result.message,
+            password: result.message
+          });
+        } else {
+          alert(`❌ Login Failed\n\n${result.message}`);
+        }
+      }
     } catch (error) {
-      alert('Login failed. Please check your credentials.');
+      console.error('Login error:', error);
+      alert('❌ Connection Error\n\nUnable to connect to the server. Please check your internet connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -113,6 +141,7 @@ function LoginPage() {
               onChange={handleInputChange}
               placeholder="Enter your email address"
               className={errors.email ? 'error' : ''}
+              disabled={isLoading}
             />
             {errors.email && <span className="error-message">{errors.email}</span>}
           </div>
@@ -127,6 +156,7 @@ function LoginPage() {
               onChange={handleInputChange}
               placeholder="Enter your password"
               className={errors.password ? 'error' : ''}
+              disabled={isLoading}
             />
             {errors.password && <span className="error-message">{errors.password}</span>}
           </div>

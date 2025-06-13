@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SignUpPage.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 function SignUpPage() {
   const navigate = useNavigate();
+  
+  // ✅ 모든 필드를 빈 문자열로 초기화 (undefined 방지)
   const [formData, setFormData] = useState({
     email: '',
     name: '',
     password: '',
-    month: '',
-    day: '',
-    year: ''
+    dateOfBirth: '' // ✅ date input을 위한 단일 필드
   });
 
   const [errors, setErrors] = useState({});
@@ -53,17 +55,15 @@ function SignUpPage() {
     // 비밀번호 검증
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
-    } else if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = 'Password must contain both letters and numbers';
+    } else if (formData.password.length < 6) { // ✅ 백엔드와 일치시킴
+      newErrors.password = 'Password must be at least 6 characters';
     }
     
-    // 생년월일 검증
-    if (!formData.month || !formData.day || !formData.year) {
-      newErrors.dateOfBirth = 'Please select your complete birth date';
+    // ✅ 생년월일 검증 수정
+    if (!formData.dateOfBirth) {
+      newErrors.dateOfBirth = 'Please select your birth date';
     } else {
-      const birthDate = new Date(`${formData.year}-${formData.month}-${formData.day}`);
+      const birthDate = new Date(formData.dateOfBirth);
       const currentDate = new Date();
       const minDate = new Date('1900-01-01');
       
@@ -90,25 +90,49 @@ function SignUpPage() {
     
     setIsLoading(true);
     
-    // 여기에 실제 회원가입 API 호출 로직 추가
     try {
-      // 임시로 2초 딜레이
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // 회원가입 성공 메시지
-      alert(`🎉 Welcome to Time Travelers, ${formData.name}!\n\nYour account has been created successfully!\nLet's explore what the world was like on your birthday!`);
-      
-      // 잠시 후 자동으로 홈페이지로 이동
-      setTimeout(() => {
-        navigate('/', { state: { 
-          isLoggedIn: true, 
-          userName: formData.name,
-          userBirthDate: `${formData.year}-${formData.month}-${formData.day}`
-        }});
-      }, 1000); // 1초 후 자동 이동
-      
+      // ✅ 실제 API 호출
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          email: formData.email,
+          name: formData.name,
+          password: formData.password,
+          birth_date: formData.dateOfBirth
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // 회원가입 성공 메시지
+        alert(`🎉 Welcome to Time Travelers, ${formData.name}!\n\nYour account has been created successfully!\nLet's explore what the world was like on your birthday!`);
+        
+        // 로그인 페이지로 이동
+        setTimeout(() => {
+          navigate('/login', { 
+            state: { 
+              message: 'Registration successful! Please login.',
+              email: formData.email
+            }
+          });
+        }, 1000);
+        
+      } else {
+        // 회원가입 실패 처리
+        if (result.message.includes('email')) {
+          setErrors({ email: result.message });
+        } else {
+          alert(`❌ Registration Failed\n\n${result.message}`);
+        }
+      }
     } catch (error) {
-      alert('Sign up failed. Please try again.');
+      console.error('Registration error:', error);
+      alert('❌ Connection Error\n\nUnable to connect to the server. Please check your internet connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -144,6 +168,7 @@ function SignUpPage() {
               onChange={handleInputChange}
               placeholder="Enter your email address"
               className={errors.email ? 'error' : ''}
+              disabled={isLoading}
             />
             {errors.email && <span className="error-message">{errors.email}</span>}
           </div>
@@ -158,6 +183,7 @@ function SignUpPage() {
               onChange={handleInputChange}
               placeholder="Enter your full name"
               className={errors.name ? 'error' : ''}
+              disabled={isLoading}
             />
             {errors.name && <span className="error-message">{errors.name}</span>}
           </div>
@@ -170,8 +196,9 @@ function SignUpPage() {
               name="password"
               value={formData.password}
               onChange={handleInputChange}
-              placeholder="At least 8 characters with letters & numbers"
+              placeholder="At least 6 characters"
               className={errors.password ? 'error' : ''}
+              disabled={isLoading}
             />
             {errors.password && <span className="error-message">{errors.password}</span>}
           </div>
@@ -187,6 +214,7 @@ function SignUpPage() {
               min="1900-01-01"
               max={new Date().toISOString().split('T')[0]}
               className={errors.dateOfBirth ? 'error' : ''}
+              disabled={isLoading}
             />
             {errors.dateOfBirth && <span className="error-message">{errors.dateOfBirth}</span>}
             <p className="birth-hint">We'll show you what the world was like on your special day!</p>
@@ -221,7 +249,7 @@ function SignUpPage() {
         </div>
 
         <div className="signup-footer">
-        <p>Already have an account? <button onClick={goToLogin} className="login-link">Login here</button></p>
+          <p>Already have an account? <button onClick={goToLogin} className="login-link">Login here</button></p>
         </div>
       </div>
     </div>
