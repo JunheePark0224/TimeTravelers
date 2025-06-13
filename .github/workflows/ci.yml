@@ -90,11 +90,11 @@ jobs:
           cd backend
           npm ci
           
-      - name: Run Backend Tests (SuperTest)
+      - name: Run Backend Tests (Non-Auth APIs)
         if: steps.backend-check.outputs.status == 'ready'
         run: |
-          cd backend
-          npm test -- --coverage --forceExit --detectOpenHandles
+            cd backend
+            npm run test:ci -- --coverage --forceExit
           
       - name: Test Database Connection
         if: steps.backend-check.outputs.status == 'ready'

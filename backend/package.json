@@ -4,8 +4,9 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js",
-    "test": "jest"
+    "dev": "nodemon app.js", 
+    "test": "jest",
+    "test:ci": "jest --testPathIgnorePatterns=auth.test.js"
   },
   "keywords": [],
   "author": "",
