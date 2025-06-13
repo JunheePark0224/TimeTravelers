@@ -1,43 +1,40 @@
-// app.js
 const express = require('express');
-const cors = require('cors');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const passport = require('./config/passport');
+const { pool, testConnection, createTables } = require('./config/db');
+const authRoutes = require('./routes/auth');
+const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-// Import database
-const { testConnection, createTables } = require('./config/db');
-
-// MySQL session store
-const sessionStore = new MySQLStore({
-  host: process.env.DB_HOST,
-  port: 3306,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
-});
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // React 개발 서버
+  credentials: true 
+}));
 
 // Middleware
-app.use(cors({
-  origin: 'http://localhost:3000', // React frontend URL
-  credentials: true
-}));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Session store using MySQL
+const sessionStore = new MySQLStore({}, pool);
 
 // Session configuration
 app.use(session({
-  key: 'session_cookie_name',
-  secret: process.env.SESSION_SECRET,
+  key: 'timecapsule_session',
+  secret: process.env.SESSION_SECRET || 'your-secret-key-change-this-in-production',
   store: sessionStore,
   resave: false,
   saveUninitialized: false,
   cookie: {
+    maxAge: 1000 * 60 * 60 * 24, // 24 hours
     secure: false, // set to true in production with HTTPS
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    sameSite: 'lax'
   }
 }));
 
@@ -45,16 +42,60 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Import and use API routes
-const apiRoutes = require('./routes/index');
-app.use('/api', apiRoutes);
+// API Routes
+app.use('/api/auth', authRoutes);
 
-// Basic health check route
-app.get('/', (req, res) => {
+// Health check endpoint
+app.get('/api/health', (req, res) => {
   res.json({ 
-    message: 'TimeTravelers Backend API is running!',
-    timestamp: new Date().toISOString(),
-    user: req.user ? req.user.email : 'Not logged in'
+    status: 'OK', 
+    message: 'Time Capsule API is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Get current user info
+app.get('/api/user', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.json({
+      success: true,
+      user: {
+        id: req.user.id,
+        email: req.user.email,
+        name: req.user.name,
+        birth_date: req.user.birth_date
+      }
+    });
+  } else {
+    res.status(401).json({
+      success: false,
+      message: 'Not authenticated'
+    });
+  }
+});
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'build')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  });
+}
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error'
+  });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'API endpoint not found'
   });
 });
 
@@ -64,12 +105,10 @@ const startServer = async () => {
     await testConnection();
     await createTables();
     
-    const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
-      console.log(`Server is running at http://localhost:${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`Using Passport.js for authentication`);
-      console.log(`Using MySQL for database`);
+      console.log(`Time Capsule API Server is running on port ${PORT}`);
+      console.log(`Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+      console.log(`API Base URL: http://localhost:${PORT}/api`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
