@@ -152,7 +152,6 @@ function SignUpPage() {
       
       <div className="signup-content">
         <div className="signup-header">
-          <img src="/clock-logo.png" alt="Time Travelers Logo" className="signup-logo" />
           <h1 className="signup-title bangers-regular">Join Time Travelers</h1>
           <p className="signup-subtitle">Create your account to save your time journeys</p>
         </div>

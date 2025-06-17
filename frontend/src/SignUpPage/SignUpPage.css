@@ -5,20 +5,17 @@
     font-style: normal;
   }
   
-  /* 메인 컨테이너 */
   .signup-container {
     position: relative;
     width: 100vw;
-    min-height: 100vh;
-    background-position: center center;
+    height: 100vh;
+    background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    background-attachment: fixed;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow-y: auto;
-    padding: 20px 0;
+    overflow: hidden;
   }
   
   /* 어두운 오버레이 */
@@ -36,30 +33,29 @@
     z-index: 2;
     background: rgba(255, 248, 240, 0.95);
     backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 40px;
-    max-width: 500px;
+    border-radius: 16px;
+    padding: 29px ; /* ⬅️ 위아래 여백 줄임 */
     width: 90%;
+    max-width: 500px;
+    max-height: 90vh;  /* ⬅️ 카드 자체 높이 줄임 */
+    overflow: hidden;  /* 내부 스크롤 제거 */
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
   }
   
   /* 헤더 영역 */
   .signup-header {
     text-align: center;
-    margin-bottom: 30px;
-  }
-  
-  .signup-logo {
-    width: 150px;
-    height: auto;
-    margin-bottom: 20px;
-    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.3));
+    margin-bottom: 0px;
   }
   
   .signup-title {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
+    font-size: 3.5rem;
+    margin-bottom: 20px;
     color: #333;
     letter-spacing: 1px;
   }
@@ -67,7 +63,7 @@
   .signup-subtitle {
     font-size: 1.1rem;
     color: #666;
-    margin-bottom: 0;
+    margin-bottom: 20px;
     font-style: italic;
   }
   
@@ -119,10 +115,11 @@
   }
   
   .birth-hint {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: #888;
     margin: 5px 0 0 0;
     font-style: italic;
+    margin-top: 14px;
   }
   
   /* 버튼 영역 */
@@ -130,7 +127,7 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    margin-top: 20px;
+    margin-top: 18px;
   }
   
   .signup-btn, .back-btn {
@@ -199,7 +196,7 @@
   /* 푸터 */
   .signup-footer {
     text-align: center;
-    margin-top: 25px;
+    margin-top: 10px;
     padding-top: 20px;
     border-top: 1px solid #eee;
   }
@@ -244,4 +241,19 @@
       align-items: flex-start;
       padding: 20px 0;
     }
+  }
+
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .signup-content {
+    animation: fadeInUp 1.5s ease-out;
   }
