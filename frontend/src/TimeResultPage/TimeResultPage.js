@@ -31,7 +31,7 @@ const TimeResultPage = () => {
       setWeatherLoading(true);
       setWeatherError(null);
       
-      const response = await fetch(`http://localhost:5000/api/time-data/${date}/weather`, {
+      const response = await fetch(`http://localhost:5000/api/time/${date}/weather`, {
         method: 'GET',
         credentials: 'include',
         headers: {

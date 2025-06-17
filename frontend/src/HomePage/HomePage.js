@@ -62,7 +62,7 @@ function HomePage() {
       return;
     }
     
-    const formattedDate = `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
+    const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
     setIsLoading(true);
     
     // 2초 후 TimeResultPage로 이동
