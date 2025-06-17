@@ -10,6 +10,7 @@ const newsRoutes = require('./routes/news');
 const musicRoutes = require('./routes/music');
 const moviesRoutes = require('./routes/movies'); 
 const priceRoutes = require('./routes/price'); 
+const celebRouter = require('./routes/celeb');
 
 const cors = require('cors');
 const path = require('path');
@@ -66,6 +67,7 @@ app.use('/api/news', newsRoutes);
 app.use('/api/music', musicRoutes);
 app.use('/api/movies', moviesRoutes); 
 app.use('/api/price', priceRoutes);
+app.use('/api/celeb', celebRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({
