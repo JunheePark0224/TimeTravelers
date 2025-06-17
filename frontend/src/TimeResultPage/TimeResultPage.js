@@ -631,7 +631,7 @@ const TimeResultPage = () => {
                 )}
               </div>
             </div>
-              </div>
+      
 
 
           </div>
