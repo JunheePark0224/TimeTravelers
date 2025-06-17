@@ -109,6 +109,7 @@
   padding: 15px;
   font-size: 13px;
   line-height: 1.4;
+  margin-bottom: 20px;
 }
 
 /* 메인 뉴스 스타일 */
@@ -149,16 +150,17 @@
 
 /* 사이드바 섹션들 */
 .sidebar-section {
-  margin-bottom: 25px;
+  margin-bottom: 30px;
 }
 
 .sidebar-section:last-child {
-  margin-bottom: 0;
+  margin-bottom: 0px;
 }
 
 .sidebar-section ul {
   list-style: none;
   padding: 0;
+  margin-bottom: 0px;
 }
 
 .sidebar-section li {
@@ -169,6 +171,7 @@
 
 .sidebar-section li:last-child {
   border-bottom: none;
+  margin-bottom: 0px;
 }
 
 /* 하단 버튼 - 새로운 저장 기능 포함 */
