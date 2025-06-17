@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../AuthContext';
 import './LoginPage.css';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+  
+  // TimeResultPage에서 전달된 리다이렉트 정보 확인
+  const redirectTo = location.state?.redirectTo;
+  const redirectData = location.state?.redirectData;
+  const redirectMessage = location.state?.message;
   
   const [formData, setFormData] = useState({
     email: '',
@@ -22,7 +28,6 @@ function LoginPage() {
       [name]: value
     }));
     
-    // 에러 제거
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -34,7 +39,6 @@ function LoginPage() {
   const validateForm = () => {
     const newErrors = {};
     
-    // 이메일 검증
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email) {
       newErrors.email = 'Email is required';
@@ -42,7 +46,6 @@ function LoginPage() {
       newErrors.email = 'Please enter a valid email address';
     }
     
-    // 비밀번호 검증
     if (!formData.password) {
       newErrors.password = 'Password is required';
     }
@@ -61,58 +64,49 @@ function LoginPage() {
     
     setIsLoading(true);
     
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // 세션 쿠키 포함
-        body: JSON.stringify(formData)
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        // 로그인 성공 메시지
-        alert(`🎉 Welcome back, ${result.user.name}!\n\nYou have successfully logged in!`);
-        
-        // 사용자 정보를 localStorage에 저장 (선택사항)
-        localStorage.setItem('user', JSON.stringify(result.user));
-        
-        // 잠시 후 자동으로 홈페이지로 이동
-        setTimeout(() => {
-          navigate('/', { 
+    const result = await login(formData.email, formData.password);
+    
+    if (result.success) {
+      alert(`🎉 Welcome back, ${result.user.name}!\n\nYou have successfully logged in!`);
+      
+      setTimeout(() => {
+        // TimeResultPage에서 온 경우 해당 페이지로 돌아가기
+        if (redirectTo === '/timeresult' && redirectData) {
+          navigate('/timeresult', { 
             state: { 
-              isLoggedIn: true, 
-              userName: result.user.name,
-              userEmail: result.user.email,
-              loginMethod: 'login'
-            }
-          });
-        }, 1000); // 1초 후 자동 이동
-        
-      } else {
-        // 로그인 실패 처리
-        if (result.message.includes('email') || result.message.includes('password')) {
-          setErrors({
-            email: result.message,
-            password: result.message
+              selectedDate: redirectData.selectedDate 
+            } 
           });
         } else {
-          alert(`❌ Login Failed\n\n${result.message}`);
+          // 일반적인 경우 홈으로 이동
+          navigate('/');
         }
+      }, 1000);
+    } else {
+      if (result.message && (result.message.includes('email') || result.message.includes('password'))) {
+        setErrors({
+          email: result.message,
+          password: result.message
+        });
+      } else {
+        alert(`❌ Login Failed\n\n${result.message}`);
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      alert('❌ Connection Error\n\nUnable to connect to the server. Please check your internet connection and try again.');
-    } finally {
-      setIsLoading(false);
     }
+    
+    setIsLoading(false);
   };
 
   const goBack = () => {
-    navigate('/');
+    // TimeResultPage에서 온 경우 해당 페이지로 돌아가기
+    if (redirectTo === '/timeresult' && redirectData) {
+      navigate('/timeresult', { 
+        state: { 
+          selectedDate: redirectData.selectedDate 
+        } 
+      });
+    } else {
+      navigate('/');
+    }
   };
 
   const goToSignUp = () => {
@@ -127,7 +121,14 @@ function LoginPage() {
         <div className="login-header">
           <img src="/clock-logo.png" alt="Time Travelers Logo" className="login-logo" />
           <h1 className="login-title bangers-regular">Welcome Back</h1>
-          <p className="login-subtitle">Sign in to continue your time journey</p>
+          
+          {redirectMessage ? (
+            <p className="login-subtitle" style={{ color: '#ff6b6b', fontWeight: 'bold' }}>
+              {redirectMessage}
+            </p>
+          ) : (
+            <p className="login-subtitle">Sign in to continue your time journey</p>
+          )}
         </div>
 
         <div className="login-form">

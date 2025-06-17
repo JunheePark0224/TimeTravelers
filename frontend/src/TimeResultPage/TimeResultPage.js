@@ -1,42 +1,45 @@
-import { fetchTopTracks } from '../api/music'; // 추가
+import { fetchTopTracks } from '../api/music';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../AuthContext';
 import './TimeResultPage.css';
 
 const TimeResultPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const selectedDate = location.state?.selectedDate || "1995-03-15"; // YYYY-MM-DD 형식으로 변경
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  
+  const selectedDate = location.state?.selectedDate || "1995-03-15";
+  const isLoggedIn = isAuthenticated;
+  
+  // 🔥 MyPage에서 온 캡슐 데이터 확인
+  const fromMyPage = location.state?.fromMyPage || false;
+  const savedCapsuleData = location.state?.capsuleData || null;
 
-  // 로그인 상태 확인 (실제로는 context나 props로 받아야 함)
-  const isLoggedIn = location.state?.isLoggedIn || false;
-
-  // Price API 상태 관리
+  // API 상태 관리
   const [priceData, setPriceData] = useState(null);
   const [priceLoading, setPriceLoading] = useState(true);
   const [priceError, setPriceError] = useState(null);
 
-  // 새로 추가: Weather API 상태 관리
   const [weatherData, setWeatherData] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(true);
   const [weatherError, setWeatherError] = useState(null);
 
-  // 추가: Music API 상태 관리
   const [musicTracks, setMusicTracks] = useState([]);
   const [musicLoading, setMusicLoading] = useState(true);
   const [musicError, setMusicError] = useState(null);
 
-  // 추가: News API 상태 관리
   const [newsArticles, setNewsArticles] = useState([]);
   const [newsLoading, setNewsLoading] = useState(true);
   const [newsError, setNewsError] = useState(null);
 
-  // 추가: Movie API 상태 관리
   const [movieList, setMovieList] = useState([]);
   const [movieLoading, setMovieLoading] = useState(true);
   const [movieError, setMovieError] = useState(null);
 
-  // 날짜 포맷 변환 함수 (표시용)
+  const [isSaving, setIsSaving] = useState(false);
+
+  // 날짜 포맷 변환 함수
   const formatDateForDisplay = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', {
@@ -104,7 +107,6 @@ const TimeResultPage = () => {
     }
   };
 
-
   // 날씨 코드를 이모지로 변환하는 함수
   const getWeatherEmoji = (code) => {
     if (code === 0) return '☀️';
@@ -116,35 +118,6 @@ const TimeResultPage = () => {
     if (code <= 99) return '⛈️';
     return '🌤️';
   };
-
-  // 컴포넌트 마운트 시 Weather API 호출
-  useEffect(() => {
-    if (selectedDate) {
-      fetchWeatherData(selectedDate);
-    }
-  }, [selectedDate]);
-
-
-  // News 
-  useEffect(() => {
-    if (selectedDate) {
-      fetchNewsArticles(selectedDate);
-    }
-  }, [selectedDate]);
-
-  // Movie
-  useEffect(() => {
-    if (selectedDate) {
-      fetchMovieData(selectedDate);
-    }
-  }, [selectedDate]);
-
-  // Price
-  useEffect(() => {
-    if (selectedDate) {
-      fetchPriceData(selectedDate);
-    }
-  }, [selectedDate]);
 
   // Movie API 호출
   const fetchMovieData = async (date) => {
@@ -204,7 +177,127 @@ const TimeResultPage = () => {
     }
   };
 
+  // Save Time Capsule 함수
+  const saveTimeCapsule = async () => {
+    try {
+      setIsSaving(true);
+      
+      const capsuleData = {
+        selected_date: selectedDate,
+        title: `Time Capsule from ${formatDateForDisplay(selectedDate)}`,
+        historical_data: {
+          priceData,
+          weatherData,
+          musicTracks: musicTracks.slice(0, 3),
+          newsArticles: newsArticles.slice(0, 6),
+          movieList: movieList.slice(0, 3),
+          createdAt: new Date().toISOString()
+        },
+        is_public: false
+      };
 
+      const response = await fetch('http://localhost:5000/api/capsules', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(capsuleData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save time capsule');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        alert(`🎉 Time Capsule saved successfully!\n\nHi ${user.name}! Your time capsule from ${formatDateForDisplay(selectedDate)} has been saved.\nYou can view it in My Page!`);
+        
+        const goToMyPage = window.confirm('Would you like to view your saved capsules in My Page?');
+        if (goToMyPage) {
+          navigate('/mypage');
+        }
+      } else {
+        throw new Error(result.message || 'Failed to save');
+      }
+      
+    } catch (error) {
+      console.error('Save time capsule error:', error);
+      alert(`❌ Failed to save time capsule\n\n${error.message}\nPlease try again.`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // 🔥 저장된 캡슐 데이터 로드 함수
+  const loadSavedCapsuleData = () => {
+    if (savedCapsuleData && savedCapsuleData.historical_data) {
+      try {
+        let historicalData = savedCapsuleData.historical_data;
+        
+        // 문자열이면 파싱
+        if (typeof historicalData === 'string') {
+          historicalData = JSON.parse(historicalData);
+        }
+
+        // 저장된 데이터로 상태 설정
+        if (historicalData.priceData) {
+          setPriceData(historicalData.priceData);
+          setPriceLoading(false);
+        }
+        
+        if (historicalData.weatherData) {
+          setWeatherData(historicalData.weatherData);
+          setWeatherLoading(false);
+        }
+        
+        if (historicalData.musicTracks) {
+          setMusicTracks(historicalData.musicTracks);
+          setMusicLoading(false);
+        }
+        
+        if (historicalData.newsArticles) {
+          setNewsArticles(historicalData.newsArticles);
+          setNewsLoading(false);
+        }
+        
+        if (historicalData.movieList) {
+          setMovieList(historicalData.movieList);
+          setMovieLoading(false);
+        }
+
+        console.log('✅ 저장된 캡슐 데이터 로드 완료');
+        return true;
+      } catch (error) {
+        console.error('캡슐 데이터 파싱 에러:', error);
+        return false;
+      }
+    }
+    return false;
+  };
+
+  // 컴포넌트 마운트 시 API 호출들
+  useEffect(() => {
+    if (selectedDate) {
+      // MyPage에서 온 경우 저장된 데이터 사용
+      if (fromMyPage && savedCapsuleData) {
+        const loaded = loadSavedCapsuleData();
+        if (loaded) {
+          console.log('🎯 저장된 캡슐 데이터 사용');
+          return; // 저장된 데이터를 사용하므로 API 호출 건너뛰기
+        }
+      }
+      
+      // 새로운 날짜이거나 저장된 데이터가 없으면 API 호출
+      console.log('🌐 새로운 API 호출');
+      fetchWeatherData(selectedDate);
+      fetchNewsArticles(selectedDate);
+      fetchMovieData(selectedDate);
+      fetchPriceData(selectedDate);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDate, fromMyPage, savedCapsuleData]);
 
   // Music API 호출
   useEffect(() => {
@@ -224,33 +317,39 @@ const TimeResultPage = () => {
     };
 
     if (selectedDate) {
+      // MyPage에서 온 경우이고 저장된 음악 데이터가 있으면 건너뛰기
+      if (fromMyPage && savedCapsuleData && savedCapsuleData.historical_data?.musicTracks) {
+        console.log('🎵 저장된 음악 데이터 사용');
+        return;
+      }
+      
+      // 새로운 데이터 로드
       loadMusic();
     }
-  }, [selectedDate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDate, fromMyPage, savedCapsuleData]);
 
   const handleBackHome = () => {
     navigate('/');
   };
 
   const handleSaveCapsule = () => {
-    if (isLoggedIn) {
-      // 로그인된 상태면 바로 저장
-      alert('🎉 Time Capsule saved successfully!\nYou can share it with your friends!');
-      // TODO: 실제 저장 API 호출
+    if (authLoading) {
+      return;
+    }
+
+    if (isLoggedIn && user) {
+      saveTimeCapsule();
     } else {
-      // 게스트면 로그인 페이지로 이동 (현재 날짜 정보 전달)
       navigate('/login', {
         state: {
           redirectTo: '/timeresult',
-          saveData: {
-            selectedDate: selectedDate,
-            fromSave: true
-          }
+          redirectData: { selectedDate: selectedDate },
+          message: 'Please log in to save your time capsule!'
         }
       });
     }
   };
-
 
   // Price 섹션 렌더링 함수
   const renderPriceSection = () => {
@@ -274,7 +373,6 @@ const TimeResultPage = () => {
     );
   };
 
-
   // Movie 섹션 렌더링 함수
   const renderMovieSection = () => {
     if (movieLoading) {
@@ -296,7 +394,6 @@ const TimeResultPage = () => {
       </ul>
     );
   };
-
 
   // Weather 섹션 렌더링 함수
   const renderWeatherSection = () => {
@@ -340,7 +437,6 @@ const TimeResultPage = () => {
     if (weatherData) {
       return (
         <div className="section-content">
-          {/* 서울 날씨 */}
           {weatherData.seoul && (
             <div style={{ marginBottom: '15px', paddingBottom: '10px', borderBottom: '1px dotted #ccc' }}>
               <h4 style={{ margin: '0 0 5px 0', fontSize: '14px', fontWeight: 'bold' }}>🏙️ Seoul</h4>
@@ -356,7 +452,6 @@ const TimeResultPage = () => {
             </div>
           )}
 
-          {/* 뉴욕 날씨 */}
           {weatherData.newyork && (
             <div style={{ marginBottom: '15px', paddingBottom: '10px', borderBottom: '1px dotted #ccc' }}>
               <h4 style={{ margin: '0 0 5px 0', fontSize: '14px', fontWeight: 'bold' }}>🗽 New York</h4>
@@ -372,7 +467,6 @@ const TimeResultPage = () => {
             </div>
           )}
 
-          {/* 런던 날씨 */}
           {weatherData.london && (
             <div>
               <h4 style={{ margin: '0 0 5px 0', fontSize: '14px', fontWeight: 'bold' }}>🇬🇧 London</h4>
@@ -398,6 +492,20 @@ const TimeResultPage = () => {
     );
   };
 
+  if (authLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px' 
+      }}>
+        🔄 Loading...
+      </div>
+    );
+  }
+
   return (
     <div className="newspaper-container">
       <div className="newspaper">
@@ -419,13 +527,13 @@ const TimeResultPage = () => {
           {/* 왼쪽 사이드바 */}
           <div className="left-sidebar">
 
-            {/* 날씨 섹션 - 실제 API 데이터로 업데이트 */}
+            {/* 날씨 섹션 */}
             <div className="news-section sidebar-section">
               <div className="section-header">WEATHER REPORT</div>
               {renderWeatherSection()}
             </div>
 
-            {/* 시장 가격 섹션 - 실제 API 데이터로 업데이트 */}
+            {/* 시장 가격 섹션 */}
             <div className="news-section sidebar-section">
               <div className="section-header">MARKET PRICES</div>
               <div className="section-content">
@@ -435,7 +543,7 @@ const TimeResultPage = () => {
 
           </div>
 
-          {/* 메인 뉴스 영역 - 기존 그대로 */}
+          {/* 메인 뉴스 영역 */}
           <div className="main-content">
 
             <div className="breaking-news">
@@ -470,11 +578,9 @@ const TimeResultPage = () => {
               </div>
             </div>
 
-
-
           </div>
 
-          {/* 오른쪽 사이드바 - 기존 그대로 */}
+          {/* 오른쪽 사이드바 */}
           <div className="right-sidebar">
 
             {/* 인기 음악 섹션 */}
@@ -519,22 +625,64 @@ const TimeResultPage = () => {
           </div>
         </div>
 
-        {/* 하단 버튼 - 기존 그대로 */}
+        {/* 하단 버튼 */}
         <div className="newspaper-footer">
           <div className="save-capsule-content">
             <h3 style={{ marginBottom: '10px', color: '#3b2f2f', fontSize: '1.2rem' }}>
               💎 Want to save this time capsule and share it with friends?
             </h3>
-            <p style={{ marginBottom: '20px', color: '#666', fontSize: '14px' }}>
-              Log in to save your personal time capsule and share it with friends!
-            </p>
+            
+            {/* 🔥 MyPage에서 온 경우 다른 메시지 표시 */}
+            {fromMyPage ? (
+              <p style={{ marginBottom: '20px', color: '#666', fontSize: '14px' }}>
+                ✨ This is your saved time capsule from {formatDateForDisplay(selectedDate)}!
+              </p>
+            ) : isLoggedIn && user ? (
+              <p style={{ marginBottom: '20px', color: '#666', fontSize: '14px' }}>
+                Welcome back, <strong>{user.name}</strong>! Ready to save your time capsule from {formatDateForDisplay(selectedDate)}?
+              </p>
+            ) : (
+              <p style={{ marginBottom: '20px', color: '#666', fontSize: '14px' }}>
+                Log in to save your personal time capsule and share it with friends!
+              </p>
+            )}
+            
             <div className="save-buttons">
-              <button onClick={handleSaveCapsule} className="save-capsule-button">
-                {isLoggedIn ? '💾 Save as Time Capsule' : '🔐 Login to Save Capsule'}
-              </button>
+              {/* 🔥 MyPage에서 온 경우 저장 버튼 숨기기 */}
+              {!fromMyPage && (
+                <button 
+                  onClick={handleSaveCapsule} 
+                  className="save-capsule-button"
+                  disabled={isSaving}
+                  style={{
+                    opacity: isSaving ? 0.7 : 1,
+                    cursor: isSaving ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {isSaving ? (
+                    '⏳ Saving...'
+                  ) : isLoggedIn ? (
+                    '💾 Save as Time Capsule'
+                  ) : (
+                    '🔐 Login to Save Capsule'
+                  )}
+                </button>
+              )}
+              
               <button onClick={handleBackHome} className="back-button">
                 ← RETURN TO TIME MACHINE
               </button>
+              
+              {/* 🔥 MyPage에서 온 경우 MyPage로 돌아가는 버튼 추가 */}
+              {fromMyPage && (
+                <button 
+                  onClick={() => navigate('/mypage')} 
+                  className="back-button"
+                  style={{ marginLeft: '10px' }}
+                >
+                  📋 Back to My Capsules
+                </button>
+              )}
             </div>
           </div>
         </div>
