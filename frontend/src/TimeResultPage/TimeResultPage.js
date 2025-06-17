@@ -433,6 +433,39 @@ const TimeResultPage = () => {
               </div>
             </div>
 
+                        {/* 인기 음악 섹션 */}
+                        <div className="news-section sidebar-section">
+              <div className="section-header">TOP HITS</div>
+              <div className="section-content">
+                {musicLoading ? (
+                  <p>🎵 Loading music data...</p>
+                ) : musicError ? (
+                  <p style={{ color: '#d32f2f' }}>⚠️ {musicError}</p>
+                ) : (
+                  <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+                    {musicTracks.slice(0, 3).map((track, idx) => (
+                      <li key={idx} style={{ marginBottom: '12px' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 'bold' }}>🎵 {track.title}</span><br />
+                        <span style={{ fontSize: '12px', color: '#555' }}>{track.artist}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+                          {/* 재미있는 사실들 */}
+              <div className="news-section sidebar-section">
+              <div className="section-header">DID YOU KNOW?</div>
+              <div className="section-content">
+                <p><strong>API Calling</strong></p>
+                <p>Historical facts API will be integrated here.</p>
+                <p><em>Fun facts data loading...</em></p>
+              </div>
+            </div>
+
+
+            </div>
+
           </div>
 
           {/* 메인 뉴스 영역 - 기존 그대로 */}
@@ -476,43 +509,13 @@ const TimeResultPage = () => {
 
           {/* 오른쪽 사이드바 - 기존 그대로 */}
           <div className="right-sidebar">
-
-            {/* 인기 음악 섹션 */}
-            <div className="news-section sidebar-section">
-              <div className="section-header">TOP HITS</div>
-              <div className="section-content">
-                {musicLoading ? (
-                  <p>🎵 Loading music data...</p>
-                ) : musicError ? (
-                  <p style={{ color: '#d32f2f' }}>⚠️ {musicError}</p>
-                ) : (
-                  <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
-                    {musicTracks.slice(0, 3).map((track, idx) => (
-                      <li key={idx} style={{ marginBottom: '12px' }}>
-                        <span style={{ fontSize: '13px', fontWeight: 'bold' }}>🎵 {track.title}</span><br />
-                        <span style={{ fontSize: '12px', color: '#555' }}>{track.artist}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
+    
 
             {/* 영화 섹션 */}
             <div className="news-section sidebar-section">
               <div className="section-header">CINEMA</div>
               <div className="section-content">
                 {renderMovieSection()}
-              </div>
-            </div>
-
-            {/* 재미있는 사실들 */}
-            <div className="news-section sidebar-section">
-              <div className="section-header">DID YOU KNOW?</div>
-              <div className="section-content">
-                <p><strong>API Calling</strong></p>
-                <p>Historical facts API will be integrated here.</p>
-                <p><em>Fun facts data loading...</em></p>
               </div>
             </div>
 
