@@ -6,7 +6,7 @@ import './HomePage.css';
 function HomePage() {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout: authLogout } = useAuth();
-  
+  const currentYear = new Date().getFullYear();
   const [logoPhase, setLogoPhase] = useState('start');
   const [showContent, setShowContent] = useState(false);
   const [showHowTo, setShowHowTo] = useState(false);
@@ -40,13 +40,15 @@ function HomePage() {
       return;
     }
     
+    
     // 날짜 검증
     const yearNum = parseInt(year);
     const monthNum = parseInt(month);
     const dayNum = parseInt(day);
+  
     
-    if (yearNum < 1900 || yearNum > 2099) {
-      alert('Please enter a year between 1900 and 2099');
+    if (yearNum < 1900 || yearNum > currentYear) {
+      alert(`Please enter a year between 1900 and ${currentYear}`);
       return;
     }
     
@@ -139,7 +141,7 @@ function HomePage() {
               type="number" 
               placeholder="YYYY" 
               min="1900" 
-              max="2099" 
+              max={currentYear}
               value={year}
               onChange={(e) => setYear(e.target.value)}
               disabled={isLoading}
