@@ -1,9 +1,11 @@
+import { useCallback } from 'react';
 import { fetchTopTracks } from '../api/music';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import './TimeResultPage.css';
 import { fetchCelebrityData } from '../api/celeb';
+
 
 const TimeResultPage = () => {
   const navigate = useNavigate();
@@ -56,25 +58,23 @@ const TimeResultPage = () => {
   };
 
   // Celeb API 호출 함수
-  const fetchCelebData = async () => {
+  const fetchCelebData = useCallback(async () => {
     try {
       setCelebLoading(true);
       setCelebError(null);
-
+  
       const dateObj = new Date(selectedDate);
       const month = dateObj.getMonth() + 1;
       const day = dateObj.getDate();
-
+  
       const data = await fetchCelebrityData(month, day);
-      setCelebData(data);  // data: { born: [...], died: [...] }
-      console.log("🎂 Celeb data loaded:", data);
+      setCelebData(data);
     } catch (err) {
-      console.error("Celeb fetch error:", err);
       setCelebError("Celebrity data unavailable");
     } finally {
       setCelebLoading(false);
     }
-  };
+  }, [selectedDate]);
 
   // Weather API 호출 함수
   const fetchWeatherData = async (date) => {
@@ -305,6 +305,7 @@ const TimeResultPage = () => {
   };
 
   // 컴포넌트 마운트 시 API 호출들
+  
   useEffect(() => {
     if (selectedDate) {
       // MyPage에서 온 경우 저장된 데이터 사용
@@ -329,7 +330,7 @@ const TimeResultPage = () => {
 
   useEffect(() => {
     fetchCelebData();
-  }, [selectedDate]);
+  }, [fetchCelebData]);
 
   // Music API 호출
   useEffect(() => {
