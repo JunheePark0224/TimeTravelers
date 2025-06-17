@@ -3,15 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import './TimeResultPage.css';
+import { fetchCelebrityData } from '../api/celeb';
 
 const TimeResultPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  
+
   const selectedDate = location.state?.selectedDate || "1995-03-15";
   const isLoggedIn = isAuthenticated;
-  
+
   // 🔥 MyPage에서 온 캡슐 데이터 확인
   const fromMyPage = location.state?.fromMyPage || false;
   const savedCapsuleData = location.state?.capsuleData || null;
@@ -37,6 +38,11 @@ const TimeResultPage = () => {
   const [movieLoading, setMovieLoading] = useState(true);
   const [movieError, setMovieError] = useState(null);
 
+  const [celebData, setCelebData] = useState(null);
+  const [celebLoading, setCelebLoading] = useState(true);
+  const [celebError, setCelebError] = useState(null);
+
+
   const [isSaving, setIsSaving] = useState(false);
 
   // 날짜 포맷 변환 함수
@@ -47,6 +53,27 @@ const TimeResultPage = () => {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  // Celeb API 호출 함수
+  const fetchCelebData = async () => {
+    try {
+      setCelebLoading(true);
+      setCelebError(null);
+
+      const dateObj = new Date(selectedDate);
+      const month = dateObj.getMonth() + 1;
+      const day = dateObj.getDate();
+
+      const data = await fetchCelebrityData(month, day);
+      setCelebData(data);  // data: { born: [...], died: [...] }
+      console.log("🎂 Celeb data loaded:", data);
+    } catch (err) {
+      console.error("Celeb fetch error:", err);
+      setCelebError("Celebrity data unavailable");
+    } finally {
+      setCelebLoading(false);
+    }
   };
 
   // Weather API 호출 함수
@@ -181,7 +208,7 @@ const TimeResultPage = () => {
   const saveTimeCapsule = async () => {
     try {
       setIsSaving(true);
-      
+
       const capsuleData = {
         selected_date: selectedDate,
         title: `Time Capsule from ${formatDateForDisplay(selectedDate)}`,
@@ -210,10 +237,10 @@ const TimeResultPage = () => {
       }
 
       const result = await response.json();
-      
+
       if (result.success) {
         alert(`🎉 Time Capsule saved successfully!\n\nHi ${user.name}! Your time capsule from ${formatDateForDisplay(selectedDate)} has been saved.\nYou can view it in My Page!`);
-        
+
         const goToMyPage = window.confirm('Would you like to view your saved capsules in My Page?');
         if (goToMyPage) {
           navigate('/mypage');
@@ -221,7 +248,7 @@ const TimeResultPage = () => {
       } else {
         throw new Error(result.message || 'Failed to save');
       }
-      
+
     } catch (error) {
       console.error('Save time capsule error:', error);
       alert(`❌ Failed to save time capsule\n\n${error.message}\nPlease try again.`);
@@ -235,7 +262,7 @@ const TimeResultPage = () => {
     if (savedCapsuleData && savedCapsuleData.historical_data) {
       try {
         let historicalData = savedCapsuleData.historical_data;
-        
+
         // 문자열이면 파싱
         if (typeof historicalData === 'string') {
           historicalData = JSON.parse(historicalData);
@@ -246,22 +273,22 @@ const TimeResultPage = () => {
           setPriceData(historicalData.priceData);
           setPriceLoading(false);
         }
-        
+
         if (historicalData.weatherData) {
           setWeatherData(historicalData.weatherData);
           setWeatherLoading(false);
         }
-        
+
         if (historicalData.musicTracks) {
           setMusicTracks(historicalData.musicTracks);
           setMusicLoading(false);
         }
-        
+
         if (historicalData.newsArticles) {
           setNewsArticles(historicalData.newsArticles);
           setNewsLoading(false);
         }
-        
+
         if (historicalData.movieList) {
           setMovieList(historicalData.movieList);
           setMovieLoading(false);
@@ -288,7 +315,7 @@ const TimeResultPage = () => {
           return; // 저장된 데이터를 사용하므로 API 호출 건너뛰기
         }
       }
-      
+
       // 새로운 날짜이거나 저장된 데이터가 없으면 API 호출
       console.log('🌐 새로운 API 호출');
       fetchWeatherData(selectedDate);
@@ -296,8 +323,13 @@ const TimeResultPage = () => {
       fetchMovieData(selectedDate);
       fetchPriceData(selectedDate);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate, fromMyPage, savedCapsuleData]);
+
+
+  useEffect(() => {
+    fetchCelebData();
+  }, [selectedDate]);
 
   // Music API 호출
   useEffect(() => {
@@ -322,11 +354,11 @@ const TimeResultPage = () => {
         console.log('🎵 저장된 음악 데이터 사용');
         return;
       }
-      
+
       // 새로운 데이터 로드
       loadMusic();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate, fromMyPage, savedCapsuleData]);
 
   const handleBackHome = () => {
@@ -494,12 +526,12 @@ const TimeResultPage = () => {
 
   if (authLoading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         height: '100vh',
-        fontSize: '18px' 
+        fontSize: '18px'
       }}>
         🔄 Loading...
       </div>
@@ -541,8 +573,8 @@ const TimeResultPage = () => {
               </div>
             </div>
 
-                        {/* 인기 음악 섹션 */}
-                        <div className="news-section sidebar-section">
+            {/* 인기 음악 섹션 */}
+            <div className="news-section sidebar-section">
               <div className="section-header">TOP HITS</div>
               <div className="section-content">
                 {musicLoading ? (
@@ -561,15 +593,44 @@ const TimeResultPage = () => {
                 )}
               </div>
 
-                          {/* 재미있는 사실들 */}
+              {/* 유명인 생일/사망일 섹션 */}
               <div className="news-section sidebar-section">
-              <div className="section-header">DID YOU KNOW?</div>
-              <div className="section-content">
-                <p><strong>API Calling</strong></p>
-                <p>Historical facts API will be integrated here.</p>
-                <p><em>Fun facts data loading...</em></p>
+                <div className="section-header">FAMOUS BIRTHS & DEATHS</div>
+                <div className="section-content">
+                  {celebLoading ? (
+                    <p>🎂 Loading celebrity data...</p>
+                  ) : celebError ? (
+                    <p style={{ color: '#d32f2f' }}>⚠️ {celebError}</p>
+                  ) : (
+                    <>
+                      <h4 style={{ marginTop: '8px', marginBottom: '4px' }}>🎉 Born</h4>
+                      <ul style={{ listStyle: 'none', paddingLeft: 0, fontSize: '12px' }}>
+                        {celebData?.born?.slice(0, 2).map((person, idx) => (
+                          <li key={idx} style={{ marginBottom: '6px' }}>
+                            {person.year} – {person.name}
+                            {person.wikipedia && (
+                              <a href={person.wikipedia} target="_blank" rel="noreferrer"> 🔗</a>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+
+                      <h4 style={{ marginTop: '12px', marginBottom: '4px' }}>🕯️ Died</h4>
+                      <ul style={{ listStyle: 'none', paddingLeft: 0, fontSize: '12px' }}>
+                        {celebData?.died?.slice(0, 2).map((person, idx) => (
+                          <li key={idx} style={{ marginBottom: '6px' }}>
+                            {person.year} – {person.name}
+                            {person.wikipedia && (
+                              <a href={person.wikipedia} target="_blank" rel="noreferrer"> 🔗</a>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
+
 
 
             </div>
@@ -615,7 +676,7 @@ const TimeResultPage = () => {
 
           {/* 오른쪽 사이드바 */}
           <div className="right-sidebar">
-    
+
 
             {/* 영화 섹션 */}
             <div className="news-section sidebar-section">
@@ -634,7 +695,7 @@ const TimeResultPage = () => {
             <h3 style={{ marginBottom: '10px', color: '#3b2f2f', fontSize: '1.2rem' }}>
               💎 Want to save this time capsule and share it with friends?
             </h3>
-            
+
             {/* 🔥 MyPage에서 온 경우 다른 메시지 표시 */}
             {fromMyPage ? (
               <p style={{ marginBottom: '20px', color: '#666', fontSize: '14px' }}>
@@ -649,12 +710,12 @@ const TimeResultPage = () => {
                 Log in to save your personal time capsule and share it with friends!
               </p>
             )}
-            
+
             <div className="save-buttons">
               {/* 🔥 MyPage에서 온 경우 저장 버튼 숨기기 */}
               {!fromMyPage && (
-                <button 
-                  onClick={handleSaveCapsule} 
+                <button
+                  onClick={handleSaveCapsule}
                   className="save-capsule-button"
                   disabled={isSaving}
                   style={{
@@ -671,15 +732,15 @@ const TimeResultPage = () => {
                   )}
                 </button>
               )}
-              
+
               <button onClick={handleBackHome} className="back-button">
                 ← RETURN TO TIME MACHINE
               </button>
-              
+
               {/* 🔥 MyPage에서 온 경우 MyPage로 돌아가는 버튼 추가 */}
               {fromMyPage && (
-                <button 
-                  onClick={() => navigate('/mypage')} 
+                <button
+                  onClick={() => navigate('/mypage')}
                   className="back-button"
                   style={{ marginLeft: '10px' }}
                 >
