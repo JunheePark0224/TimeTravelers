@@ -142,7 +142,29 @@ router.post('/logout', (req, res) => {
   });
 });
 
-// Check authentication status
+// 🔥 간단한 인증 상태 확인 API
+router.get('/check-auth', (req, res) => {
+  console.log('🔍 Check-auth 호출:', req.isAuthenticated());
+  
+  if (req.isAuthenticated()) {
+    res.json({
+      loggedIn: true,
+      user: {
+        id: req.user.id,
+        email: req.user.email,
+        name: req.user.name,
+        birth_date: req.user.birth_date
+      }
+    });
+  } else {
+    res.json({
+      loggedIn: false,
+      user: null
+    });
+  }
+});
+
+// 기존 status API도 유지 (호환성)
 router.get('/status', (req, res) => {
   if (req.isAuthenticated()) {
     res.json({

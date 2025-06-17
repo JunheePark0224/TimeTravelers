@@ -1,4 +1,4 @@
-import { fetchTopTracks } from '../api/music'; // 추가
+import { fetchTopTracks } from '../api/music'; // 팀원의 음악 API 추가
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './TimeResultPage.css';
@@ -6,22 +6,61 @@ import './TimeResultPage.css';
 const TimeResultPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const selectedDate = location.state?.selectedDate || "1995-03-15"; // YYYY-MM-DD 형식으로 변경
+  const selectedDate = location.state?.selectedDate || "1995-03-15";
+  
+  // 로그인 상태 관리 (당신의 인증 시스템)
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
-  // 로그인 상태 확인 (실제로는 context나 props로 받아야 함)
-  const isLoggedIn = location.state?.isLoggedIn || false;
+  // 캡슐 저장 상태 관리
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // 새로 추가: Weather API 상태 관리
+  // Weather API 상태 관리
   const [weatherData, setWeatherData] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(true);
   const [weatherError, setWeatherError] = useState(null);
 
-  // 추가: Music API 상태 관리
+  // 팀원의 Music API 상태 관리
   const [musicTracks, setMusicTracks] = useState([]);
   const [musicLoading, setMusicLoading] = useState(true);
   const [musicError, setMusicError] = useState(null);
 
-  // 날짜 포맷 변환 함수 (표시용)
+  // 로그인 상태 확인 함수
+  const checkAuth = async () => {
+    try {
+      setAuthLoading(true);
+      
+      const response = await fetch('http://localhost:5000/api/auth/check-auth', {
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.loggedIn && data.user) {
+          setUser(data.user);
+        } else {
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Auth 확인 에러:', error);
+      setUser(null);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // 컴포넌트 마운트 시 로그인 상태 확인
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  // 날짜 포맷 변환 함수
   const formatDateForDisplay = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', {
@@ -29,6 +68,72 @@ const TimeResultPage = () => {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  // 캡슐 저장 함수
+  const saveCapsule = async () => {
+    try {
+      setIsSaving(true);
+      setSaveError(null);
+      setSaveSuccess(false);
+
+      const historicalData = {
+        weather: weatherData,
+        music: musicTracks, // 팀원의 음악 데이터 포함
+        news: null,
+        movies: null,
+        market: null,
+        pageSnapshot: {
+          selectedDate: selectedDate,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent
+        }
+      };
+
+      const capsuleData = {
+        selected_date: selectedDate,
+        historical_data: historicalData,
+        title: `Time Capsule - ${formatDateForDisplay(selectedDate)}`,
+        is_public: false
+      };
+
+      const response = await fetch('http://localhost:5000/api/capsules', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(capsuleData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.message || 'Failed to save capsule');
+      }
+
+      setSaveSuccess(true);
+
+      const shareUrl = `${window.location.origin}/capsule/share/${result.capsule.share_token}`;
+      
+      alert(`🎉 Time Capsule saved successfully!
+      
+📋 Capsule ID: ${result.capsule.id}
+🔗 Share URL: ${shareUrl}
+
+You can now share this link with your friends or find it in your MY PAGE!`);
+
+    } catch (error) {
+      console.error('Save capsule error:', error);
+      setSaveError(error.message);
+      alert(`❌ Failed to save capsule: ${error.message}`);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Weather API 호출 함수
@@ -85,7 +190,7 @@ const TimeResultPage = () => {
     }
   }, [selectedDate]);
 
-  // Music API 호출
+  // 팀원의 Music API 호출
   useEffect(() => {
     const loadMusic = async () => {
       try {
@@ -111,13 +216,13 @@ const TimeResultPage = () => {
     navigate('/');
   };
 
+  // Save Capsule 핸들러
   const handleSaveCapsule = () => {
+    const isLoggedIn = !!user;
+    
     if (isLoggedIn) {
-      // 로그인된 상태면 바로 저장
-      alert('🎉 Time Capsule saved successfully!\nYou can share it with your friends!');
-      // TODO: 실제 저장 API 호출
+      saveCapsule();
     } else {
-      // 게스트면 로그인 페이지로 이동 (현재 날짜 정보 전달)
       navigate('/login', {
         state: {
           redirectTo: '/timeresult',
@@ -128,6 +233,10 @@ const TimeResultPage = () => {
         }
       });
     }
+  };
+
+  const handleGoToMyPage = () => {
+    navigate('/mypage');
   };
 
   // Weather 섹션 렌더링 함수
@@ -230,6 +339,23 @@ const TimeResultPage = () => {
     );
   };
 
+  // 로딩 중일 때는 로딩 화면 표시
+  if (authLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px' 
+      }}>
+        🔍 Checking login status...
+      </div>
+    );
+  }
+
+  const isLoggedIn = !!user;
+
   return (
     <div className="newspaper-container">
       <div className="newspaper">
@@ -257,7 +383,7 @@ const TimeResultPage = () => {
               {renderWeatherSection()}
             </div>
 
-            {/* 시장 가격 섹션 - 기존 그대로 */}
+            {/* 시장 가격 섹션 */}
             <div className="news-section sidebar-section">
               <div className="section-header">MARKET PRICES</div>
               <div className="section-content">
@@ -269,7 +395,7 @@ const TimeResultPage = () => {
 
           </div>
 
-          {/* 메인 뉴스 영역 - 기존 그대로 */}
+          {/* 메인 뉴스 영역 */}
           <div className="main-content">
 
             <div className="breaking-news">
@@ -299,10 +425,10 @@ const TimeResultPage = () => {
 
           </div>
 
-          {/* 오른쪽 사이드바 - 기존 그대로 */}
+          {/* 오른쪽 사이드바 */}
           <div className="right-sidebar">
 
-            {/* 인기 음악 섹션 */}
+            {/* 팀원의 인기 음악 섹션 - 실제 API 연동 */}
             <div className="news-section sidebar-section">
               <div className="section-header">TOP HITS</div>
               <div className="section-content">
@@ -346,19 +472,89 @@ const TimeResultPage = () => {
           </div>
         </div>
 
-        {/* 하단 버튼 - 기존 그대로 */}
+        {/* 하단 버튼 */}
         <div className="newspaper-footer">
           <div className="save-capsule-content">
             <h3 style={{ marginBottom: '10px', color: '#3b2f2f', fontSize: '1.2rem' }}>
               💎 Want to save this time capsule and share it with friends?
             </h3>
+            
             <p style={{ marginBottom: '20px', color: '#666', fontSize: '14px' }}>
-              Log in to save your personal time capsule and share it with friends!
+              {isLoggedIn 
+                ? `Welcome back, ${user?.name}! Save your time capsule and get a shareable link.`
+                : "Log in to save your personal time capsule and share it with friends!"
+              }
             </p>
+            
+            {/* 성공 메시지 */}
+            {saveSuccess && (
+              <div style={{ 
+                marginBottom: '15px', 
+                padding: '15px', 
+                backgroundColor: '#d4edda', 
+                border: '1px solid #c3e6cb', 
+                borderRadius: '4px',
+                color: '#155724',
+                fontSize: '14px'
+              }}>
+                ✅ <strong>Time Capsule saved successfully!</strong><br/>
+                <small>Check your MY PAGE or use the share link to view it anytime.</small>
+              </div>
+            )}
+            
+            {/* 저장 에러 표시 */}
+            {saveError && (
+              <div style={{ 
+                marginBottom: '15px', 
+                padding: '10px', 
+                backgroundColor: '#ffebee', 
+                border: '1px solid #ffcdd2', 
+                borderRadius: '4px',
+                color: '#c62828',
+                fontSize: '14px'
+              }}>
+                ❌ {saveError}
+              </div>
+            )}
+
             <div className="save-buttons">
-              <button onClick={handleSaveCapsule} className="save-capsule-button">
-                {isLoggedIn ? '💾 Save as Time Capsule' : '🔐 Login to Save Capsule'}
+              <button 
+                onClick={handleSaveCapsule} 
+                className="save-capsule-button"
+                disabled={isSaving}
+                style={{
+                  opacity: isSaving ? 0.7 : 1,
+                  cursor: isSaving ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {isSaving 
+                  ? '💾 Saving...' 
+                  : (isLoggedIn ? '💾 Save as Time Capsule' : '🔐 Login to Save Capsule')
+                }
               </button>
+              
+              {/* 로그인된 사용자에게만 MY PAGE 버튼 표시 */}
+              {isLoggedIn && (
+                <button 
+                  onClick={handleGoToMyPage} 
+                  className="mypage-button"
+                  style={{
+                    padding: '12px 24px',
+                    backgroundColor: '#2196F3',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    marginLeft: '10px',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  📋 View My Capsules
+                </button>
+              )}
+              
               <button onClick={handleBackHome} className="back-button">
                 ← RETURN TO TIME MACHINE
               </button>
