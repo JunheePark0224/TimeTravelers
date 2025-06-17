@@ -191,7 +191,7 @@ function HomePage() {
         <div className="auth-buttons fade-in-delayed">
           {isLoggedIn ? (
             <>
-              <button onClick={handleMyPage}>
+              <button onClick={() => navigate('/mypage')}>
                 👤 My Page
               </button>
               <button onClick={handleLogout}>

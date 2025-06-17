@@ -1,0 +1,90 @@
+.mypage-container {
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+  
+    background-image: url('/public/background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  
+    font-family: 'Georgia', serif;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 2rem;
+    box-sizing: border-box;
+  }
+  
+  /* 🟡 어두운 오버레이 추가 */
+  .mypage-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(10, 10, 10, 0.6); /* 반투명 어두운 필터 */
+    z-index: 0;
+  }
+  
+  /* 실제 내용은 오버레이 위에 올라오도록 */
+  .mypage-title,
+  .capsule-grid {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .mypage-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: #fff;
+  }
+  
+  .capsule-grid {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    overflow: auto;
+  }
+  
+  .capsule-card {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 10px;
+    width: 250px;
+    transition: transform 0.2s ease;
+    position: relative;
+    color: #222;
+  }
+  
+  .capsule-card:hover {
+    transform: translateY(-5px);
+    background-color: #fff;
+  }
+  
+  .capsule-title {
+    font-weight: bold;
+    margin: 0.5rem 0;
+    color: #111;
+  }
+  
+  .capsule-summary {
+    font-size: 0.9rem;
+    color: #444;
+  }
+  
+  .capsule-delete {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #cc0000;
+  }
+  
+  .capsule-delete:hover {
+    color: #ff0000;
+  }
