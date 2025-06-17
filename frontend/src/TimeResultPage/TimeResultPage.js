@@ -1,3 +1,4 @@
+import { fetchTopTracks } from '../api/music'; // 추가
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './TimeResultPage.css';
@@ -6,7 +7,7 @@ const TimeResultPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const selectedDate = location.state?.selectedDate || "1995-03-15"; // YYYY-MM-DD 형식으로 변경
-  
+
   // 로그인 상태 확인 (실제로는 context나 props로 받아야 함)
   const isLoggedIn = location.state?.isLoggedIn || false;
 
@@ -15,13 +16,18 @@ const TimeResultPage = () => {
   const [weatherLoading, setWeatherLoading] = useState(true);
   const [weatherError, setWeatherError] = useState(null);
 
+  // 추가: Music API 상태 관리
+  const [musicTracks, setMusicTracks] = useState([]);
+  const [musicLoading, setMusicLoading] = useState(true);
+  const [musicError, setMusicError] = useState(null);
+
   // 날짜 포맷 변환 함수 (표시용)
   const formatDateForDisplay = (dateStr) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   };
 
@@ -30,7 +36,7 @@ const TimeResultPage = () => {
     try {
       setWeatherLoading(true);
       setWeatherError(null);
-      
+
       const response = await fetch(`http://localhost:5000/api/time/${date}/weather`, {
         method: 'GET',
         credentials: 'include',
@@ -44,14 +50,14 @@ const TimeResultPage = () => {
       }
 
       const data = await response.json();
-      
+
       if (!data.success) {
         throw new Error(data.message || 'Failed to fetch weather data');
       }
 
       setWeatherData(data.weather);
       console.log('🌤️ Weather data loaded:', data.weather);
-      
+
     } catch (error) {
       console.error('Weather API Error:', error);
       setWeatherError(error.message);
@@ -79,6 +85,28 @@ const TimeResultPage = () => {
     }
   }, [selectedDate]);
 
+  // Music API 호출
+  useEffect(() => {
+    const loadMusic = async () => {
+      try {
+        setMusicLoading(true);
+        setMusicError(null);
+        const tracks = await fetchTopTracks(selectedDate);
+        setMusicTracks(tracks);
+        console.log('🎵 Music loaded:', tracks);
+      } catch (err) {
+        console.error('Music fetch error:', err);
+        setMusicError('Music data unavailable');
+      } finally {
+        setMusicLoading(false);
+      }
+    };
+
+    if (selectedDate) {
+      loadMusic();
+    }
+  }, [selectedDate]);
+
   const handleBackHome = () => {
     navigate('/');
   };
@@ -90,8 +118,8 @@ const TimeResultPage = () => {
       // TODO: 실제 저장 API 호출
     } else {
       // 게스트면 로그인 페이지로 이동 (현재 날짜 정보 전달)
-      navigate('/login', { 
-        state: { 
+      navigate('/login', {
+        state: {
           redirectTo: '/timeresult',
           saveData: {
             selectedDate: selectedDate,
@@ -121,14 +149,14 @@ const TimeResultPage = () => {
           <div style={{ textAlign: 'center', padding: '20px', color: '#d32f2f' }}>
             <div style={{ fontSize: '24px', marginBottom: '10px' }}>⚠️</div>
             <p>Weather data unavailable</p>
-            <button 
+            <button
               onClick={() => fetchWeatherData(selectedDate)}
-              style={{ 
-                marginTop: '10px', 
-                padding: '5px 10px', 
-                backgroundColor: '#000', 
-                color: 'white', 
-                border: 'none', 
+              style={{
+                marginTop: '10px',
+                padding: '5px 10px',
+                backgroundColor: '#000',
+                color: 'white',
+                border: 'none',
                 borderRadius: '2px',
                 cursor: 'pointer',
                 fontSize: '12px'
@@ -149,7 +177,7 @@ const TimeResultPage = () => {
             <div style={{ marginBottom: '15px', paddingBottom: '10px', borderBottom: '1px dotted #ccc' }}>
               <h4 style={{ margin: '0 0 5px 0', fontSize: '14px', fontWeight: 'bold' }}>🏙️ Seoul</h4>
               <p style={{ margin: '0', fontSize: '12px' }}>
-                {getWeatherEmoji(weatherData.seoul.weatherCode)} 
+                {getWeatherEmoji(weatherData.seoul.weatherCode)}
                 <strong> {weatherData.seoul.tempMax}°C / {weatherData.seoul.tempMin}°C</strong>
               </p>
               {weatherData.seoul.precipitation > 0 && (
@@ -165,7 +193,7 @@ const TimeResultPage = () => {
             <div style={{ marginBottom: '15px', paddingBottom: '10px', borderBottom: '1px dotted #ccc' }}>
               <h4 style={{ margin: '0 0 5px 0', fontSize: '14px', fontWeight: 'bold' }}>🗽 New York</h4>
               <p style={{ margin: '0', fontSize: '12px' }}>
-                {getWeatherEmoji(weatherData.newyork.weatherCode)} 
+                {getWeatherEmoji(weatherData.newyork.weatherCode)}
                 <strong> {weatherData.newyork.tempMax}°C / {weatherData.newyork.tempMin}°C</strong>
               </p>
               {weatherData.newyork.precipitation > 0 && (
@@ -181,7 +209,7 @@ const TimeResultPage = () => {
             <div>
               <h4 style={{ margin: '0 0 5px 0', fontSize: '14px', fontWeight: 'bold' }}>🇬🇧 London</h4>
               <p style={{ margin: '0', fontSize: '12px' }}>
-                {getWeatherEmoji(weatherData.london.weatherCode)} 
+                {getWeatherEmoji(weatherData.london.weatherCode)}
                 <strong> {weatherData.london.tempMax}°C / {weatherData.london.tempMin}°C</strong>
               </p>
               {weatherData.london.precipitation > 0 && (
@@ -205,7 +233,7 @@ const TimeResultPage = () => {
   return (
     <div className="newspaper-container">
       <div className="newspaper">
-        
+
         {/* 신문 헤더 */}
         <div className="newspaper-header">
           <div className="newspaper-info">
@@ -219,10 +247,10 @@ const TimeResultPage = () => {
 
         {/* 메인 컨텐츠 영역 */}
         <div className="newspaper-content">
-          
+
           {/* 왼쪽 사이드바 */}
           <div className="left-sidebar">
-            
+
             {/* 날씨 섹션 - 실제 API 데이터로 업데이트 */}
             <div className="news-section sidebar-section">
               <div className="section-header">WEATHER REPORT</div>
@@ -238,15 +266,15 @@ const TimeResultPage = () => {
                 <p><em>Historical price data loading...</em></p>
               </div>
             </div>
-            
+
           </div>
 
           {/* 메인 뉴스 영역 - 기존 그대로 */}
           <div className="main-content">
-            
+
             <div className="breaking-news">
               <h2>BREAKING NEWS</h2>
-              
+
               {/* 뉴스 이미지 */}
               <div className="news-image">
                 <div style={{ fontSize: '24px', marginBottom: '10px' }}>📰</div>
@@ -268,19 +296,30 @@ const TimeResultPage = () => {
                 </p>
               </div>
             </div>
-            
+
           </div>
 
           {/* 오른쪽 사이드바 - 기존 그대로 */}
           <div className="right-sidebar">
-            
+
             {/* 인기 음악 섹션 */}
             <div className="news-section sidebar-section">
               <div className="section-header">TOP HITS</div>
               <div className="section-content">
-                <p><strong>API Calling</strong></p>
-                <p>Music chart API will be integrated here.</p>
-                <p><em>Popular songs data loading...</em></p>
+                {musicLoading ? (
+                  <p>🎵 Loading music data...</p>
+                ) : musicError ? (
+                  <p style={{ color: '#d32f2f' }}>⚠️ {musicError}</p>
+                ) : (
+                  <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+                    {musicTracks.slice(0, 3).map((track, idx) => (
+                      <li key={idx} style={{ marginBottom: '12px' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 'bold' }}>🎵 {track.title}</span><br />
+                        <span style={{ fontSize: '12px', color: '#555' }}>{track.artist}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
 
@@ -303,7 +342,7 @@ const TimeResultPage = () => {
                 <p><em>Fun facts data loading...</em></p>
               </div>
             </div>
-            
+
           </div>
         </div>
 
