@@ -543,7 +543,7 @@ const TimeResultPage = () => {
 
                         {/* 인기 음악 섹션 */}
                         <div className="news-section sidebar-section">
-              <div className="section-header">TOP HITS</div>
+                <div className="section-header">TOP HITS</div>
               <div className="section-content">
                 {musicLoading ? (
                   <p>🎵 Loading music data...</p>
@@ -560,18 +560,16 @@ const TimeResultPage = () => {
                   </ul>
                 )}
               </div>
+            </div>
 
-                          {/* 재미있는 사실들 */}
-              <div className="news-section sidebar-section">
+            {/* 재미있는 사실들 */}
+            <div className="news-section sidebar-section">
               <div className="section-header">DID YOU KNOW?</div>
               <div className="section-content">
                 <p><strong>API Calling</strong></p>
                 <p>Historical facts API will be integrated here.</p>
                 <p><em>Fun facts data loading...</em></p>
               </div>
-            </div>
-
-
             </div>
 
           </div>
