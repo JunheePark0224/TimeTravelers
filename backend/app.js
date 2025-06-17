@@ -7,6 +7,8 @@ const authRoutes = require('./routes/auth');
 const timeDataRoutes = require('./routes/timeData'); // Time Data 라우트 등록
 // 🔥 캡슐 라우트 추가!
 const capsulesRoutes = require('./routes/capsules');
+// 🎵 팀원의 음악 API 추가!
+const musicRoutes = require('./routes/music');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
@@ -19,14 +21,11 @@ app.use(cors({
   credentials: true
 }));
 
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session store using MySQL
 const sessionStore = new MySQLStore({}, pool);
 
-// Session configuration
 app.use(session({
   key: 'timecapsule_session',
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-this-in-production',
@@ -64,8 +63,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/time', timeDataRoutes); // 실제 엔드포인트 연결
 // 🔥 캡슐 라우트 등록!
 app.use('/api/capsules', capsulesRoutes);
+// 🎵 음악 API 라우터 연결 (팀원 기능)
+app.use('/api/music', musicRoutes);
 
-// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK',
@@ -74,7 +74,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Get current user info
 app.get('/api/user', (req, res) => {
   if (req.isAuthenticated()) {
     res.json({
@@ -102,7 +101,6 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({
@@ -111,7 +109,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
@@ -119,7 +116,6 @@ app.use('*', (req, res) => {
   });
 });
 
-// Initialize database and start server
 const startServer = async () => {
   try {
     await testConnection();

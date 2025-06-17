@@ -10,6 +10,7 @@ function HomePage() {
   const [showHowTo, setShowHowTo] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [userName, setUserName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
