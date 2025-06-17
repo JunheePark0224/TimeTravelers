@@ -2,14 +2,17 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from '../AuthContext';
 import LoginPage from './LoginPage';
 
-// Helper function to wrap component with Router
-const renderWithRouter = (component) => {
+// Helper function to wrap component with Router and AuthProvider
+const renderWithProviders = (component) => {
   return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        {component}
+      </BrowserRouter>
+    </AuthProvider>
   );
 };
 
@@ -20,18 +23,26 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+// Mock fetch globally
+global.fetch = jest.fn();
+
 describe('LoginPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
+    fetch.mockClear();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   test('renders without crashing', () => {
-    const { container } = renderWithRouter(<LoginPage />);
+    const { container } = renderWithProviders(<LoginPage />);
     expect(container.firstChild).toBeInTheDocument();
   });
 
   test('renders login form elements', () => {
-    renderWithRouter(<LoginPage />);
+    renderWithProviders(<LoginPage />);
     
     expect(screen.getByText('Welcome Back')).toBeInTheDocument();
     expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
@@ -40,7 +51,7 @@ describe('LoginPage', () => {
   });
 
   test('navigates back to home when Back button clicked', () => {
-    renderWithRouter(<LoginPage />);
+    renderWithProviders(<LoginPage />);
     
     const backButton = screen.getByText('🔙 Back to Home');
     fireEvent.click(backButton);
