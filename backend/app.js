@@ -4,7 +4,7 @@ const MySQLStore = require('express-mysql-session')(session);
 const passport = require('./config/passport');
 const { pool, testConnection, createTables } = require('./config/db');
 const authRoutes = require('./routes/auth');
-const timeDataRoutes = require('./routes/timeData'); // Time Data 라우트 등록
+const timeDataRoutes = require('./routes/timeData');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
@@ -13,18 +13,15 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // React 개발 서버
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true 
 }));
 
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session store using MySQL
 const sessionStore = new MySQLStore({}, pool);
 
-// Session configuration
 app.use(session({
   key: 'timecapsule_session',
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-this-in-production',
@@ -32,22 +29,24 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24, // 24 hours
+    maxAge: 1000 * 60 * 60 * 24,
     secure: false,
     httpOnly: true,
     sameSite: 'lax'
   }
 }));
 
-// Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/time', timeDataRoutes); // 실제 엔드포인트 연결
+// music API 라우터 연결
+const musicRoutes = require('./routes/music');
+app.use('/api/music', musicRoutes);  // ← 여기가 핵심
 
-// Health check endpoint
+// 기존 API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/time', timeDataRoutes);
+
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
@@ -56,7 +55,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Get current user info
 app.get('/api/user', (req, res) => {
   if (req.isAuthenticated()) {
     res.json({
@@ -84,7 +82,6 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({
@@ -93,7 +90,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
@@ -101,7 +97,6 @@ app.use('*', (req, res) => {
   });
 });
 
-// Initialize database and start server
 const startServer = async () => {
   try {
     await testConnection();
