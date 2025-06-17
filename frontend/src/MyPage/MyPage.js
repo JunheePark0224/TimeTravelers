@@ -1,4 +1,4 @@
-// 깔끔한 MyPage.js - 오직 캡슐 목록 관리만
+// 깔끔한 MyPage.js - Privacy 토글 기능 추가
 import React, { useState, useEffect } from 'react';
 import './MyPage.css';
 import { useNavigate } from 'react-router-dom';
@@ -44,23 +44,54 @@ const MyPage = () => {
       const data = await response.json();
 
       if (data.success) {
-        setCapsules(data.capsules || []);
-        console.log('✅ 캡슐 목록 로드됨:', data.capsules.length, '개');
+        // localStorage에서 저장된 privacy 설정 불러오기
+        const savedPrivacySettings = JSON.parse(localStorage.getItem('capsulePrivacySettings') || '{}');
+        
+        // 기존 데이터에 localStorage 설정 적용
+        const capsulesWithPrivacySettings = data.capsules.map(capsule => ({
+          ...capsule,
+          is_public: savedPrivacySettings[capsule.id] !== undefined 
+            ? savedPrivacySettings[capsule.id] 
+            : capsule.is_public
+        }));
+        
+        setCapsules(capsulesWithPrivacySettings || []);
+        console.log('✅ Capsules loaded successfully:', capsulesWithPrivacySettings.length, 'items');
       } else {
         throw new Error(data.message || 'Failed to fetch capsules');
       }
 
     } catch (error) {
-      console.error('캡슐 목록 가져오기 에러:', error);
+      console.error('Error fetching capsules:', error);
       setError(error.message);
     } finally {
       setLoading(false);
     }
   };
 
+  // Privacy 설정 토글 (localStorage에 저장)
+  const togglePrivacy = (capsuleId, currentPublicStatus) => {
+    const newPublicStatus = !currentPublicStatus;
+    
+    // 상태 업데이트
+    setCapsules(prev => prev.map(capsule => 
+      capsule.id === capsuleId 
+        ? { ...capsule, is_public: newPublicStatus }
+        : capsule
+    ));
+    
+    // localStorage에 privacy 설정 저장
+    const savedPrivacySettings = JSON.parse(localStorage.getItem('capsulePrivacySettings') || '{}');
+    savedPrivacySettings[capsuleId] = newPublicStatus;
+    localStorage.setItem('capsulePrivacySettings', JSON.stringify(savedPrivacySettings));
+    
+    const newStatus = newPublicStatus ? 'Public' : 'Private';
+    alert(`Capsule has been set to ${newStatus}.`);
+  };
+
   // 캡슐 삭제
   const deleteCapsule = async (capsuleId) => {
-    if (!window.confirm('정말로 이 캡슐을 삭제하시겠습니까?')) {
+    if (!window.confirm('Are you sure you want to delete this time capsule?')) {
       return;
     }
 
@@ -77,20 +108,31 @@ const MyPage = () => {
       const data = await response.json();
 
       if (data.success) {
+        // localStorage에서 privacy 설정도 제거
+        const savedPrivacySettings = JSON.parse(localStorage.getItem('capsulePrivacySettings') || '{}');
+        delete savedPrivacySettings[capsuleId];
+        localStorage.setItem('capsulePrivacySettings', JSON.stringify(savedPrivacySettings));
+        
         setCapsules(prev => prev.filter(capsule => capsule.id !== capsuleId));
-        alert('캡슐이 삭제되었습니다.');
+        alert('Time capsule has been deleted successfully.');
       } else {
         throw new Error(data.message || 'Failed to delete capsule');
       }
 
     } catch (error) {
-      console.error('캡슐 삭제 에러:', error);
-      alert(`캡슐 삭제에 실패했습니다: ${error.message}`);
+      console.error('Error deleting capsule:', error);
+      alert(`Failed to delete time capsule: ${error.message}`);
     }
   };
 
   // 캡슐 클릭 핸들러 (TimeResult 페이지로 이동)
   const handleCapsuleClick = (capsule) => {
+    // Private 캡슐은 클릭 비활성화
+    if (!capsule.is_public) {
+      alert('This is a private time capsule. Please set it to public to view the contents.');
+      return;
+    }
+
     navigate('/timeresult', {
       state: {
         selectedDate: capsule.selected_date,
@@ -106,7 +148,7 @@ const MyPage = () => {
     
     try {
       await navigator.clipboard.writeText(shareUrl);
-      alert('공유 링크가 클립보드에 복사되었습니다!');
+      alert('Share link has been copied to clipboard!');
     } catch (error) {
       const textArea = document.createElement('textarea');
       textArea.value = shareUrl;
@@ -114,7 +156,7 @@ const MyPage = () => {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      alert('공유 링크가 복사되었습니다!');
+      alert('Share link has been copied!');
     }
   };
 
@@ -240,13 +282,27 @@ const MyPage = () => {
                       Created: {new Date(capsule.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <div className={`status-badge ${capsule.is_public ? 'public' : 'private'}`}>
-                    {capsule.is_public ? 'Public' : 'Private'}
-                  </div>
+                  <button 
+                    className={`status-badge clickable ${capsule.is_public ? 'public' : 'private'}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      togglePrivacy(capsule.id, capsule.is_public);
+                    }}
+                    title="Click to toggle privacy"
+                  >
+                    {capsule.is_public ? '🌍 Public' : '🔒 Private'}
+                  </button>
                 </div>
 
                 {/* 캡슐 컨텐츠 */}
-                <div className="capsule-content" onClick={() => handleCapsuleClick(capsule)}>
+                <div 
+                  className={`capsule-content ${!capsule.is_public ? 'disabled' : ''}`} 
+                  onClick={() => handleCapsuleClick(capsule)}
+                  style={{
+                    cursor: capsule.is_public ? 'pointer' : 'not-allowed',
+                    opacity: capsule.is_public ? 1 : 0.6
+                  }}
+                >
                   <h3 className="capsule-title">
                     {capsule.title || `Time Capsule from ${formatDate(capsule.selected_date)}`}
                   </h3>
@@ -262,7 +318,7 @@ const MyPage = () => {
                   </div>
                   
                   <div className="view-capsule">
-                    👁️ View Capsule
+                    {capsule.is_public ? '👁️ View Capsule' : '🔒 Private Capsule'}
                   </div>
                 </div>
 

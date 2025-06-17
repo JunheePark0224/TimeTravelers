@@ -573,9 +573,10 @@ const TimeResultPage = () => {
               </div>
             </div>
 
-            {/* 인기 음악 섹션 */}
-            <div className="news-section sidebar-section">
-              <div className="section-header">TOP HITS</div>
+                        {/* 인기 음악 섹션 */}
+                        <div className="news-section sidebar-section">
+                <div className="section-header">TOP HITS</div>
+           
               <div className="section-content">
                 {musicLoading ? (
                   <p>🎵 Loading music data...</p>
@@ -592,48 +593,46 @@ const TimeResultPage = () => {
                   </ul>
                 )}
               </div>
-
-              {/* 유명인 생일/사망일 섹션 */}
-              <div className="news-section sidebar-section">
-                <div className="section-header">FAMOUS BIRTHS & DEATHS</div>
-                <div className="section-content">
-                  {celebLoading ? (
-                    <p>🎂 Loading celebrity data...</p>
-                  ) : celebError ? (
-                    <p style={{ color: '#d32f2f' }}>⚠️ {celebError}</p>
-                  ) : (
-                    <>
-                      <h4 style={{ marginTop: '8px', marginBottom: '4px' }}>🎉 Born</h4>
-                      <ul style={{ listStyle: 'none', paddingLeft: 0, fontSize: '12px' }}>
-                        {celebData?.born?.slice(0, 2).map((person, idx) => (
-                          <li key={idx} style={{ marginBottom: '6px' }}>
-                            {person.year} – {person.name}
-                            {person.wikipedia && (
-                              <a href={person.wikipedia} target="_blank" rel="noreferrer"> 🔗</a>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-
-                      <h4 style={{ marginTop: '12px', marginBottom: '4px' }}>🕯️ Died</h4>
-                      <ul style={{ listStyle: 'none', paddingLeft: 0, fontSize: '12px' }}>
-                        {celebData?.died?.slice(0, 2).map((person, idx) => (
-                          <li key={idx} style={{ marginBottom: '6px' }}>
-                            {person.year} – {person.name}
-                            {person.wikipedia && (
-                              <a href={person.wikipedia} target="_blank" rel="noreferrer"> 🔗</a>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
-                </div>
-              </div>
-
-
-
             </div>
+
+    {/* 유명인 생일/사망일 섹션 */}
+            <div className="news-section sidebar-section">
+              <div className="section-header">FAMOUS BIRTHS & DEATHS</div>
+              <div className="section-content">
+                {celebLoading ? (
+                  <p>🎂 Loading celebrity data...</p>
+                ) : celebError ? (
+                  <p style={{ color: '#d32f2f' }}>⚠️ {celebError}</p>
+                ) : (
+                  <>
+                    <h4 style={{ marginTop: '8px', marginBottom: '4px' }}>🎉 Born</h4>
+                    <ul style={{ listStyle: 'none', paddingLeft: 0, fontSize: '12px' }}>
+                      {celebData?.born?.slice(0, 2).map((person, idx) => (
+                        <li key={idx} style={{ marginBottom: '6px' }}>
+                          {person.year} – {person.name}
+                          {person.wikipedia && (
+                            <a href={person.wikipedia} target="_blank" rel="noreferrer"> 🔗</a>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                    <h4 style={{ marginTop: '12px', marginBottom: '4px' }}>🕯️ Died</h4>
+                    <ul style={{ listStyle: 'none', paddingLeft: 0, fontSize: '12px' }}>
+                      {celebData?.died?.slice(0, 2).map((person, idx) => (
+                        <li key={idx} style={{ marginBottom: '6px' }}>
+                          {person.year} – {person.name}
+                          {person.wikipedia && (
+                            <a href={person.wikipedia} target="_blank" rel="noreferrer"> 🔗</a>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+            </div>
+      
+
 
           </div>
 
