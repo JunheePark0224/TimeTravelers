@@ -8,6 +8,9 @@ const timeDataRoutes = require('./routes/timeData');
 const capsulesRoutes = require('./routes/capsules');
 const newsRoutes = require('./routes/news');
 const musicRoutes = require('./routes/music');
+const moviesRoutes = require('./routes/movies'); 
+const priceRoutes = require('./routes/price'); 
+
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
@@ -61,6 +64,8 @@ app.use('/api/time', timeDataRoutes);
 app.use('/api/capsules', capsulesRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/music', musicRoutes);
+app.use('/api/movies', moviesRoutes); 
+app.use('/api/price', priceRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({

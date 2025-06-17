@@ -11,6 +11,11 @@ const TimeResultPage = () => {
   // 로그인 상태 확인 (실제로는 context나 props로 받아야 함)
   const isLoggedIn = location.state?.isLoggedIn || false;
 
+  // Price API 상태 관리
+  const [priceData, setPriceData] = useState(null);
+  const [priceLoading, setPriceLoading] = useState(true);
+  const [priceError, setPriceError] = useState(null);
+
   // 새로 추가: Weather API 상태 관리
   const [weatherData, setWeatherData] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(true);
@@ -26,6 +31,10 @@ const TimeResultPage = () => {
   const [newsLoading, setNewsLoading] = useState(true);
   const [newsError, setNewsError] = useState(null);
 
+  // 추가: Movie API 상태 관리
+  const [movieList, setMovieList] = useState([]);
+  const [movieLoading, setMovieLoading] = useState(true);
+  const [movieError, setMovieError] = useState(null);
 
   // 날짜 포맷 변환 함수 (표시용)
   const formatDateForDisplay = (dateStr) => {
@@ -72,6 +81,30 @@ const TimeResultPage = () => {
     }
   };
 
+  // Price API 호출 함수
+  const fetchPriceData = async (date) => {
+    try {
+      setPriceLoading(true);
+      setPriceError(null);
+
+      const response = await fetch(`http://localhost:5000/api/price/${date}`);
+      const data = await response.json();
+
+      if (!data.exchangeRates || !data.consumerPrices) {
+        throw new Error("Incomplete price data");
+      }
+
+      setPriceData(data);
+      console.log("💸 Price data loaded:", data);
+    } catch (err) {
+      console.error("Price fetch error:", err);
+      setPriceError("Failed to load price data");
+    } finally {
+      setPriceLoading(false);
+    }
+  };
+
+
   // 날씨 코드를 이모지로 변환하는 함수
   const getWeatherEmoji = (code) => {
     if (code === 0) return '☀️';
@@ -99,6 +132,48 @@ const TimeResultPage = () => {
     }
   }, [selectedDate]);
 
+  // Movie
+  useEffect(() => {
+    if (selectedDate) {
+      fetchMovieData(selectedDate);
+    }
+  }, [selectedDate]);
+
+  // Price
+  useEffect(() => {
+    if (selectedDate) {
+      fetchPriceData(selectedDate);
+    }
+  }, [selectedDate]);
+
+  // Movie API 호출
+  const fetchMovieData = async (date) => {
+    try {
+      setMovieLoading(true);
+      setMovieError(null);
+
+      const response = await fetch(`http://localhost:5000/api/movies/${date}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setMovieList(data.movies);
+      console.log('🎬 Movie data loaded:', data.movies);
+    } catch (err) {
+      console.error('Movie fetch error:', err);
+      setMovieError('Movie data unavailable');
+    } finally {
+      setMovieLoading(false);
+    }
+  };
 
   // News API 호출
   const fetchNewsArticles = async (date) => {
@@ -175,6 +250,53 @@ const TimeResultPage = () => {
       });
     }
   };
+
+
+  // Price 섹션 렌더링 함수
+  const renderPriceSection = () => {
+    if (priceLoading) return <p>💸 Loading price data...</p>;
+    if (priceError) return <p style={{ color: '#d32f2f' }}>⚠️ {priceError}</p>;
+    if (!priceData) return <p>No price data available.</p>;
+
+    const { exchangeRates, consumerPrices } = priceData;
+
+    return (
+      <div>
+        <p>💸 <strong>1 USD = {exchangeRates.USD_KRW.toFixed(1)} KRW</strong></p>
+        <p>💶 <strong>1 USD = {exchangeRates.USD_EUR.toFixed(2)} EUR</strong></p>
+        <p>💴 <strong>1 USD = {exchangeRates.USD_JPY.toFixed(1)} JPY</strong></p>
+        <hr />
+        <p>🥛 Milk (1 gallon): ${consumerPrices.milk}</p>
+        <p>🍞 Bread (1 lb): ${consumerPrices.bread}</p>
+        <p>🥚 Eggs (1 dozen): ${consumerPrices.egg}</p>
+        <p>🥩 Beef (1 lb): ${consumerPrices.beef}</p>
+      </div>
+    );
+  };
+
+
+  // Movie 섹션 렌더링 함수
+  const renderMovieSection = () => {
+    if (movieLoading) {
+      return <p>🎬 Loading movie data...</p>;
+    }
+
+    if (movieError) {
+      return <p style={{ color: '#d32f2f' }}>⚠️ {movieError}</p>;
+    }
+
+    return (
+      <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+        {movieList.slice(0, 3).map((movie, idx) => (
+          <li key={idx} style={{ marginBottom: '15px' }}>
+            <img src={movie.poster} alt={movie.title} style={{ width: '100%', borderRadius: '4px', marginBottom: '4px' }} />
+            <p style={{ fontSize: '13px', fontWeight: 'bold' }}>{movie.title}</p>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
 
   // Weather 섹션 렌더링 함수
   const renderWeatherSection = () => {
@@ -303,13 +425,11 @@ const TimeResultPage = () => {
               {renderWeatherSection()}
             </div>
 
-            {/* 시장 가격 섹션 - 기존 그대로 */}
+            {/* 시장 가격 섹션 - 실제 API 데이터로 업데이트 */}
             <div className="news-section sidebar-section">
               <div className="section-header">MARKET PRICES</div>
               <div className="section-content">
-                <p><strong>API Calling</strong></p>
-                <p>Market price API will be integrated here.</p>
-                <p><em>Historical price data loading...</em></p>
+                {renderPriceSection()}
               </div>
             </div>
 
@@ -382,9 +502,7 @@ const TimeResultPage = () => {
             <div className="news-section sidebar-section">
               <div className="section-header">CINEMA</div>
               <div className="section-content">
-                <p><strong>API Calling</strong></p>
-                <p>Movie data API will be integrated here.</p>
-                <p><em>Popular movies data loading...</em></p>
+                {renderMovieSection()}
               </div>
             </div>
 
