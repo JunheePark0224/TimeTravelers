@@ -5,6 +5,8 @@ const passport = require('./config/passport');
 const { pool, testConnection, createTables } = require('./config/db');
 const authRoutes = require('./routes/auth');
 const timeDataRoutes = require('./routes/timeData'); // Time Data 라우트 등록
+// 🔥 캡슐 라우트 추가!
+const capsulesRoutes = require('./routes/capsules');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
@@ -14,7 +16,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000', // React 개발 서버
-  credentials: true 
+  credentials: true
 }));
 
 // Middleware
@@ -32,25 +34,41 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24, // 24 hours
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 7일로 변경
     secure: false,
     httpOnly: true,
     sameSite: 'lax'
-  }
+  },
+  rolling: true // 활동시마다 세션 갱신
 }));
 
-// Passport middleware
+// 🔥 Passport middleware - 순서 중요!
 app.use(passport.initialize());
 app.use(passport.session());
+
+// 🔥 디버깅용 미들웨어 - req.isAuthenticated 사용 가능한 시점에서만!
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    // Passport가 초기화된 후에만 req.isAuthenticated 사용
+    if (req.isAuthenticated && typeof req.isAuthenticated === 'function') {
+      console.log(`🔍 ${req.method} ${req.path} - Auth: ${req.isAuthenticated()}`);
+    } else {
+      console.log(`🔍 ${req.method} ${req.path} - Auth: N/A (Passport not ready)`);
+    }
+    next();
+  });
+}
 
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/time', timeDataRoutes); // 실제 엔드포인트 연결
+// 🔥 캡슐 라우트 등록!
+app.use('/api/capsules', capsulesRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ 
-    status: 'OK', 
+    status: 'OK',
     message: 'Time Capsule API is running',
     timestamp: new Date().toISOString()
   });

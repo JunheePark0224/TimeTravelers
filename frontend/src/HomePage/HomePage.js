@@ -89,9 +89,9 @@ function HomePage() {
     alert('Logged out successfully!');
   };
 
-  const handleMyPage = () => {
+  /*const handleMyPage = () => {
     alert(`Welcome back, ${userName}! (MyPage coming soon...)`);
-  };
+  };*/
 
   return (
     <div
