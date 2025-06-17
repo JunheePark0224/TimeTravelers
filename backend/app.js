@@ -39,9 +39,13 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// new API 라우터 연결
+const newsRoutes = require('./routes/news');
+app.use('/api/news', newsRoutes);
+
 // music API 라우터 연결
 const musicRoutes = require('./routes/music');
-app.use('/api/music', musicRoutes);  // ← 여기가 핵심
+app.use('/api/music', musicRoutes); 
 
 // 기존 API Routes
 app.use('/api/auth', authRoutes);

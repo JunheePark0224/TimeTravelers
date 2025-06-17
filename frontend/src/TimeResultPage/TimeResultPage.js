@@ -21,6 +21,12 @@ const TimeResultPage = () => {
   const [musicLoading, setMusicLoading] = useState(true);
   const [musicError, setMusicError] = useState(null);
 
+  // 추가: News API 상태 관리
+  const [newsArticles, setNewsArticles] = useState([]);
+  const [newsLoading, setNewsLoading] = useState(true);
+  const [newsError, setNewsError] = useState(null);
+
+
   // 날짜 포맷 변환 함수 (표시용)
   const formatDateForDisplay = (dateStr) => {
     const date = new Date(dateStr);
@@ -84,6 +90,46 @@ const TimeResultPage = () => {
       fetchWeatherData(selectedDate);
     }
   }, [selectedDate]);
+
+
+  // News 
+  useEffect(() => {
+    if (selectedDate) {
+      fetchNewsArticles(selectedDate);
+    }
+  }, [selectedDate]);
+
+
+  // News API 호출
+  const fetchNewsArticles = async (date) => {
+    try {
+      setNewsLoading(true);
+      setNewsError(null);
+
+      const response = await fetch(`http://localhost:5000/api/news/${date}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setNewsArticles(data.articles);
+      console.log('📰 News loaded:', data.articles);
+    } catch (err) {
+      console.error('News fetch error:', err);
+      setNewsError('News data unavailable');
+    } finally {
+      setNewsLoading(false);
+    }
+  };
+
+
 
   // Music API 호출
   useEffect(() => {
@@ -275,27 +321,36 @@ const TimeResultPage = () => {
             <div className="breaking-news">
               <h2>BREAKING NEWS</h2>
 
-              {/* 뉴스 이미지 */}
-              <div className="news-image">
-                <div style={{ fontSize: '24px', marginBottom: '10px' }}>📰</div>
-                <p><strong>API Calling</strong></p>
-                <p>News API will be integrated here</p>
-              </div>
-
-              {/* 뉴스 본문 */}
               <div className="news-text">
-                <p><strong>API Calling - News Content</strong></p>
-                <p>
-                  This section will integrate News API to fetch major headlines and events from {formatDateForDisplay(selectedDate)}.
-                </p>
-                <p>
-                  We will display real-time news data covering politics, economics, culture, sports, and other major events from the selected date.
-                </p>
-                <p>
-                  Historical news data will provide insights into what was happening in the world on your chosen date.
-                </p>
+                {newsLoading ? (
+                  <p>📰 Loading news data...</p>
+                ) : newsError ? (
+                  <p style={{ color: '#d32f2f' }}>⚠️ {newsError}</p>
+                ) : (
+                  <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+                    {newsArticles.slice(0, 6).map((article, idx) => (
+                      <li key={idx} style={{ marginBottom: '20px', borderBottom: '1px dotted #ccc', paddingBottom: '10px' }}>
+                        <a
+                          href={article.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ fontSize: '15px', fontWeight: 'bold', color: '#2b2b7f', textDecoration: 'underline' }}
+                        >
+                          📰 {article.title}
+                        </a>
+                        {article.summary && (
+                          <p style={{ fontSize: '13px', color: '#333', marginTop: '5px' }}>
+                            {article.summary.replace(/<[^>]+>/g, '')}
+                          </p>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
+
+
 
           </div>
 
