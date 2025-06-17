@@ -4,6 +4,7 @@ const MySQLStore = require('express-mysql-session')(session);
 const passport = require('./config/passport');
 const { pool, testConnection, createTables } = require('./config/db');
 const authRoutes = require('./routes/auth');
+const timeDataRoutes = require('./routes/timeData'); // Time Data 라우트 등록
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
@@ -32,7 +33,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 24 hours
-    secure: false, // set to true in production with HTTPS
+    secure: false,
     httpOnly: true,
     sameSite: 'lax'
   }
@@ -44,6 +45,7 @@ app.use(passport.session());
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/time', timeDataRoutes); // 실제 엔드포인트 연결
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
