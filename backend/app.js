@@ -5,6 +5,9 @@ const passport = require('./config/passport');
 const { pool, testConnection, createTables } = require('./config/db');
 const authRoutes = require('./routes/auth');
 const timeDataRoutes = require('./routes/timeData');
+const capsulesRoutes = require('./routes/capsules');
+const newsRoutes = require('./routes/news');
+const musicRoutes = require('./routes/music');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
@@ -14,7 +17,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true 
+  credentials: true
 }));
 
 app.use(express.json());
@@ -29,31 +32,39 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24,
+    maxAge: 1000 * 60 * 60 * 24 * 7,
     secure: false,
     httpOnly: true,
     sameSite: 'lax'
-  }
+  },
+  rolling: true
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-// new API 라우터 연결
-const newsRoutes = require('./routes/news');
-app.use('/api/news', newsRoutes);
+// 디버깅용 미들웨어 (개발 모드에서만 실행)
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    if (req.isAuthenticated && typeof req.isAuthenticated === 'function') {
+      console.log(`🔍 ${req.method} ${req.path} - Auth: ${req.isAuthenticated()}`);
+    } else {
+      console.log(`🔍 ${req.method} ${req.path} - Auth: N/A (Passport not ready)`);
+    }
+    next();
+  });
+}
 
-// music API 라우터 연결
-const musicRoutes = require('./routes/music');
-app.use('/api/music', musicRoutes); 
-
-// 기존 API Routes
+// API 라우터 등록
 app.use('/api/auth', authRoutes);
 app.use('/api/time', timeDataRoutes);
+app.use('/api/capsules', capsulesRoutes);
+app.use('/api/news', newsRoutes);
+app.use('/api/music', musicRoutes);
 
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     message: 'Time Capsule API is running',
     timestamp: new Date().toISOString()
   });
@@ -80,12 +91,12 @@ app.get('/api/user', (req, res) => {
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'build')));
-  
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));
   });
 }
 
+// 에러 핸들링
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({
@@ -94,6 +105,7 @@ app.use((err, req, res, next) => {
   });
 });
 
+// 404 핸들링
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
@@ -105,14 +117,13 @@ const startServer = async () => {
   try {
     await testConnection();
     await createTables();
-    
     app.listen(PORT, () => {
-      console.log(`Time Capsule API Server is running on port ${PORT}`);
-      console.log(`Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
-      console.log(`API Base URL: http://localhost:${PORT}/api`);
+      console.log(`✅ Time Capsule API Server is running on port ${PORT}`);
+      console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+      console.log(`📡 API Base URL: http://localhost:${PORT}/api`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 };
