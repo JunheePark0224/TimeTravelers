@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../AuthContext';
 import './HomePage.css';
 
 function HomePage() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [logoPhase, setLogoPhase] = useState('start'); // 'start' -> 'moving' -> 'done'
+  const { user, isAuthenticated, logout: authLogout } = useAuth();
+  
+  const [logoPhase, setLogoPhase] = useState('start');
   const [showContent, setShowContent] = useState(false);
   const [showHowTo, setShowHowTo] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const [userName, setUserName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  // AuthContext에서 로그인 상태 가져오기
+  const isLoggedIn = isAuthenticated;
+  const userName = user?.name || '';
   
   // 날짜 입력 상태
   const [year, setYear] = useState('');
@@ -20,22 +23,16 @@ function HomePage() {
   const [day, setDay] = useState('');
 
   useEffect(() => {
-    // 회원가입 후 로그인 상태 확인
-    if (location.state?.isLoggedIn) {
-      setIsLoggedIn(true);
-      setUserName(location.state.userName);
-    }
-    
-    const timer1 = setTimeout(() => setLogoPhase('moving'), 1000); // 1초 후 이동 시작
-    const timer2 = setTimeout(() => setShowContent(true), 1500);   // 1.5초 후 콘텐츠 페이드 인
-    const timer3 = setTimeout(() => setLogoPhase('done'), 3000);   // 3초 후 로고 이동 완료 처리
+    const timer1 = setTimeout(() => setLogoPhase('moving'), 1000);
+    const timer2 = setTimeout(() => setShowContent(true), 1500);
+    const timer3 = setTimeout(() => setLogoPhase('done'), 3000);
     
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
     };
-  }, [location.state]);
+  }, []);
 
   const handleTimeTravel = () => {
     if (!year || !month || !day) {
@@ -84,15 +81,10 @@ function HomePage() {
     navigate('/login');
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUserName('');
+  const handleLogout = async () => {
+    await authLogout();
     alert('Logged out successfully!');
   };
-
-  /*const handleMyPage = () => {
-    alert(`Welcome back, ${userName}! (MyPage coming soon...)`);
-  };*/
 
   return (
     <div
@@ -128,6 +120,19 @@ function HomePage() {
       {showContent && (
         <div className="content fade-in-delayed">
           <h1 className="title bangers-regular">Time Travelers</h1>
+          
+          {/* 로그인된 사용자 환영 메시지 */}
+          {isLoggedIn && userName && (
+            <p className="welcome-message" style={{ 
+              color: '#fff', 
+              fontSize: '16px', 
+              marginBottom: '10px',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+            }}>
+              Welcome back, <strong>{userName}</strong>! 🎉
+            </p>
+          )}
+          
           <p className="subtitle">Enter the date you want to travel to</p>
           <div className="date-form">
             <input 

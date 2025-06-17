@@ -1,15 +1,17 @@
+// 깔끔한 MyPage.js - 오직 캡슐 목록 관리만
 import React, { useState, useEffect } from 'react';
 import './MyPage.css';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../AuthContext';
 
 const MyPage = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   
   // 상태 관리
   const [capsules, setCapsules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
 
   // 날짜 포맷 함수
   const formatDate = (dateStr) => {
@@ -19,31 +21,6 @@ const MyPage = () => {
       month: 'long', 
       day: 'numeric' 
     });
-  };
-
-  // 로그인 상태 확인
-  const checkAuth = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/check-auth', {
-        credentials: 'include'
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.loggedIn && data.user) {
-          setUser(data.user);
-          return true;
-        }
-      }
-      
-      // 로그인되지 않음
-      navigate('/login');
-      return false;
-    } catch (error) {
-      console.error('Auth 확인 에러:', error);
-      navigate('/login');
-      return false;
-    }
   };
 
   // 캡슐 목록 가져오기
@@ -100,7 +77,6 @@ const MyPage = () => {
       const data = await response.json();
 
       if (data.success) {
-        // 삭제된 캡슐을 목록에서 제거
         setCapsules(prev => prev.filter(capsule => capsule.id !== capsuleId));
         alert('캡슐이 삭제되었습니다.');
       } else {
@@ -132,7 +108,6 @@ const MyPage = () => {
       await navigator.clipboard.writeText(shareUrl);
       alert('공유 링크가 클립보드에 복사되었습니다!');
     } catch (error) {
-      // 클립보드 API가 지원되지 않는 경우
       const textArea = document.createElement('textarea');
       textArea.value = shareUrl;
       document.body.appendChild(textArea);
@@ -145,29 +120,37 @@ const MyPage = () => {
 
   // 컴포넌트 마운트 시 실행
   useEffect(() => {
-    const initPage = async () => {
-      const isAuthenticated = await checkAuth();
-      if (isAuthenticated) {
-        await fetchCapsules();
+    if (!authLoading) {
+      if (!isAuthenticated) {
+        navigate('/login');
+        return;
       }
-    };
+      fetchCapsules();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, authLoading, navigate]);
 
-    initPage();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // 인증 로딩 중
+  if (authLoading) {
+    return (
+      <div className="mypage-container">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <h2>🔍 Checking authentication...</h2>
+          <p>Please wait a moment</p>
+        </div>
+      </div>
+    );
+  }
 
   // 로딩 중
   if (loading) {
     return (
       <div className="mypage-container">
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          height: '50vh',
-          fontSize: '18px' 
-        }}>
-          🔍 Loading your time capsules...
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <h2>🔍 Loading your time capsules...</h2>
+          <p>Gathering your historical journeys</p>
         </div>
       </div>
     );
@@ -177,21 +160,14 @@ const MyPage = () => {
   if (error) {
     return (
       <div className="mypage-container">
-        <div style={{ textAlign: 'center', padding: '50px' }}>
-          <h2 style={{ color: '#d32f2f' }}>❌ Error</h2>
-          <p>{error}</p>
-          <button 
-            onClick={fetchCapsules}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#1976d2',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
+        <div className="error-container">
+          <h2>❌ Error</h2>
+          <p className="error-message">{error}</p>
+          <button className="retry-button" onClick={fetchCapsules}>
             🔄 Retry
+          </button>
+          <button className="home-button" onClick={() => navigate('/')}>
+            🏠 Back to Home
           </button>
         </div>
       </div>
@@ -199,131 +175,130 @@ const MyPage = () => {
   }
 
   return (
-    <div className="mypage-container">
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: '30px'
-      }}>
-        <h1 className="mypage-title">
-          📋 My Time Capsules
-          {user && <span style={{ fontSize: '16px', color: '#666', marginLeft: '10px' }}>
-            Welcome, {user.name}!
-          </span>}
-        </h1>
-        <button 
-          onClick={() => navigate('/')}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#1976d2',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
-        >
-          🏠 Back to Home
-        </button>
+    <div 
+      className="mypage-container"
+      style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/background.png)` }}
+    >
+      {/* 헤더 섹션 */}
+      <div className="mypage-header">
+        <div className="header-content">
+          <div className="user-welcome">
+            <h1 className="page-title">📋 My Time Capsules</h1>
+            <p className="welcome-text">
+              Welcome back, <strong>{user?.name}</strong>! 🎉
+            </p>
+          </div>
+          <button className="home-button" onClick={() => navigate('/')}>
+            🏠 Back to Home
+          </button>
+        </div>
+        
+        {/* 통계 섹션 */}
+        <div className="stats-container">
+          <div className="stat-item">
+            <span className="stat-number">{capsules.length}</span>
+            <span className="stat-label">Total Capsules</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-number">
+              {capsules.filter(c => c.is_public).length}
+            </span>
+            <span className="stat-label">Public</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-number">
+              {capsules.filter(c => !c.is_public).length}
+            </span>
+            <span className="stat-label">Private</span>
+          </div>
+        </div>
       </div>
 
+      {/* 캡슐 목록 또는 Empty State */}
       {capsules.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '50px' }}>
-          <h3 style={{ color: '#666' }}>📦 No time capsules yet</h3>
-          <p style={{ color: '#999', marginBottom: '20px' }}>
-            Create your first time capsule by selecting a date!
+        <div className="empty-state">
+          <div className="empty-icon">📦</div>
+          <h3>No time capsules yet</h3>
+          <p>
+            Create your first time capsule by selecting a date and exploring history!<br />
+            Your saved capsules will appear here.
           </p>
-          <button 
-            onClick={() => navigate('/')}
-            style={{
-              padding: '12px 24px',
-              backgroundColor: '#4caf50',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '16px'
-            }}
-          >
+          <button className="create-button" onClick={() => navigate('/')}>
             ⏰ Create Time Capsule
           </button>
         </div>
       ) : (
         <>
-          <p style={{ color: '#666', marginBottom: '20px' }}>
-            총 <strong>{capsules.length}개</strong>의 캡슐이 저장되어 있습니다.
-          </p>
-          
-          <div className="capsule-grid">
+          <div className="capsules-grid">
             {capsules.map(capsule => (
               <div key={capsule.id} className="capsule-card">
-                <div
-                  className="capsule-content"
-                  onClick={() => handleCapsuleClick(capsule)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <h3>{formatDate(capsule.selected_date)}</h3>
-                  <p className="capsule-title">{capsule.title}</p>
-                  <p className="capsule-summary">
-                    Created: {new Date(capsule.created_at).toLocaleDateString()}
-                  </p>
-                  {capsule.is_public && (
-                    <span style={{ 
-                      backgroundColor: '#4caf50', 
-                      color: 'white', 
-                      padding: '2px 6px', 
-                      borderRadius: '3px', 
-                      fontSize: '12px' 
-                    }}>
-                      Public
+                {/* 캡슐 헤더 */}
+                <div className="capsule-header">
+                  <div className="capsule-date">
+                    <span className="date-main">{formatDate(capsule.selected_date)}</span>
+                    <span className="date-created">
+                      Created: {new Date(capsule.created_at).toLocaleDateString()}
                     </span>
-                  )}
+                  </div>
+                  <div className={`status-badge ${capsule.is_public ? 'public' : 'private'}`}>
+                    {capsule.is_public ? 'Public' : 'Private'}
+                  </div>
                 </div>
-                
-                <div style={{ display: 'flex', gap: '5px' }}>
+
+                {/* 캡슐 컨텐츠 */}
+                <div className="capsule-content" onClick={() => handleCapsuleClick(capsule)}>
+                  <h3 className="capsule-title">
+                    {capsule.title || `Time Capsule from ${formatDate(capsule.selected_date)}`}
+                  </h3>
+                  
+                  <div className="capsule-preview">
+                    <div className="preview-items">
+                      <span className="preview-item">📰 News</span>
+                      <span className="preview-item">🎵 Music</span>
+                      <span className="preview-item">🎬 Movies</span>
+                      <span className="preview-item">🌤️ Weather</span>
+                      <span className="preview-item">💸 Prices</span>
+                    </div>
+                  </div>
+                  
+                  <div className="view-capsule">
+                    👁️ View Capsule
+                  </div>
+                </div>
+
+                {/* 캡슐 액션 버튼 */}
+                <div className="capsule-actions">
                   <button 
-                    className="capsule-share"
+                    className="action-button share"
                     onClick={(e) => {
                       e.stopPropagation();
                       copyShareLink(capsule.share_token);
                     }}
                     title="Share this capsule"
-                    style={{
-                      padding: '8px',
-                      backgroundColor: '#2196f3',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '14px'
-                    }}
                   >
-                    🔗
+                    🔗 Share
                   </button>
                   
                   <button 
-                    className="capsule-delete"
+                    className="action-button delete"
                     onClick={(e) => {
                       e.stopPropagation();
                       deleteCapsule(capsule.id);
                     }}
                     title="Delete this capsule"
-                    style={{
-                      padding: '8px',
-                      backgroundColor: '#f44336',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '14px'
-                    }}
                   >
-                    🗑️
+                    🗑️ Delete
                   </button>
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* 하단 액션 */}
+          <div className="bottom-actions">
+            <button className="create-new-button" onClick={() => navigate('/')}>
+              ✨ Create New Time Capsule
+            </button>
           </div>
         </>
       )}

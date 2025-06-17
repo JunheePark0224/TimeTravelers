@@ -1,90 +1,547 @@
+/* MyPage.css - 최종 완성 버전 */
 .mypage-container {
-    position: relative;
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden;
+  position: relative;
+  min-height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  overflow-y: auto;
   
-    background-image: url('/public/background.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+  /* background-image는 인라인 스타일로 처리 */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   
-    font-family: 'Georgia', serif;
-    display: flex;
+  font-family: 'Georgia', serif;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* 🔥 어두운 오버레이 */
+.mypage-container::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    135deg, 
+    rgba(0, 0, 0, 0.7) 0%, 
+    rgba(20, 20, 40, 0.8) 50%, 
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 🔥 모든 콘텐츠를 오버레이 위에 올리기 */
+.mypage-header,
+.mypage-content,
+.bottom-actions,
+.loading-container,
+.error-container,
+.empty-state,
+.capsules-grid {
+  position: relative;
+  z-index: 10;
+}
+
+/* 🔥 헤더 섹션 */
+.mypage-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.user-welcome .page-title {
+  font-size: 2.5rem;
+  color: #1a1a2e;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-text {
+  font-size: 1.1rem;
+  color: #444;
+  margin: 0;
+  font-weight: 400;
+}
+
+.home-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  white-space: nowrap;
+}
+
+.home-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+}
+
+/* 🔥 통계 섹션 */
+.stats-container {
+  display: flex;
+  gap: 30px;
+  padding: 25px 0 0 0;
+  border-top: 2px solid rgba(102, 126, 234, 0.2);
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  text-align: center;
+  flex: 1;
+  min-width: 120px;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+/* 🔥 Empty State */
+.empty-state {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 60px 40px;
+  text-align: center;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+
+.empty-state h3 {
+  font-size: 1.8rem;
+  color: #1a1a2e;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.empty-state p {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.create-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.create-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+}
+
+/* 🔥 캡슐 그리드 */
+.capsules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 25px;
+  padding: 20px 0;
+}
+
+/* 🔥 캡슐 카드 */
+.capsule-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.capsule-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+/* 🔥 캡슐 헤더 */
+.capsule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 20px 0 20px;
+}
+
+.capsule-date .date-main {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.capsule-date .date-created {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.public {
+  background: rgba(102, 126, 234, 0.15);
+  color: #4c63d2;
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.status-badge.private {
+  background: rgba(118, 75, 162, 0.15);
+  color: #764ba2;
+  border: 1px solid rgba(118, 75, 162, 0.3);
+}
+
+/* 🔥 캡슐 컨텐츠 */
+.capsule-content {
+  padding: 15px 20px 20px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.capsule-content:hover {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.capsule-title {
+  font-size: 1.3rem;
+  color: #1a1a2e;
+  margin: 0 0 15px 0;
+  font-weight: 600;
+  line-height: 1.4;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.capsule-preview {
+  margin-bottom: 15px;
+}
+
+.preview-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.preview-item {
+  background: rgba(102, 126, 234, 0.1);
+  color: #4c63d2;
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.view-capsule {
+  color: #667eea;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.capsule-content:hover .view-capsule {
+  opacity: 1;
+}
+
+/* 🔥 캡슐 액션 버튼 */
+.capsule-actions {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px 20px 20px;
+}
+
+.action-button {
+  flex: 1;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.action-button.share {
+  background: rgba(102, 126, 234, 0.1);
+  color: #4c63d2;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.action-button.share:hover {
+  background: rgba(102, 126, 234, 0.2);
+  transform: translateY(-1px);
+}
+
+.action-button.delete {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.action-button.delete:hover {
+  background: rgba(220, 53, 69, 0.2);
+  transform: translateY(-1px);
+}
+
+/* 🔥 하단 액션 */
+.bottom-actions {
+  text-align: center;
+  padding: 30px 0;
+}
+
+.create-new-button {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(245, 87, 108, 0.3);
+}
+
+.create-new-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(245, 87, 108, 0.4);
+}
+
+/* 🔥 로딩 상태 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 60px;
+  text-align: center;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(102, 126, 234, 0.2);
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-container h2 {
+  color: #1a1a2e;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.loading-container p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* 🔥 에러 상태 */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 60px;
+  text-align: center;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.error-container h2 {
+  color: #dc3545;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.error-message {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.retry-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  margin-right: 15px;
+}
+
+.retry-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+}
+
+/* 🔥 반응형 디자인 */
+@media (max-width: 768px) {
+  .mypage-container {
+    padding: 1rem;
+  }
+  
+  .header-content {
     flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding: 2rem;
-    box-sizing: border-box;
+    align-items: stretch;
   }
   
-  /* 🟡 어두운 오버레이 추가 */
-  .mypage-container::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-color: rgba(10, 10, 10, 0.6); /* 반투명 어두운 필터 */
-    z-index: 0;
+  .stats-container {
+    gap: 15px;
   }
   
-  /* 실제 내용은 오버레이 위에 올라오도록 */
-  .mypage-title,
-  .capsule-grid {
-    position: relative;
-    z-index: 1;
-  }
-  
-  .mypage-title {
+  .stat-number {
     font-size: 2rem;
-    margin-bottom: 2rem;
-    color: #fff;
   }
   
-  .capsule-grid {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    overflow: auto;
+  .capsules-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .user-welcome .page-title {
+    font-size: 2rem;
+  }
+  
+  .capsule-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .stats-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .stat-item {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .mypage-container {
+    padding: 0.5rem;
+  }
+  
+  .mypage-header {
+    padding: 20px;
+  }
+  
+  .user-welcome .page-title {
+    font-size: 1.8rem;
+  }
+  
+  .welcome-text {
+    font-size: 1rem;
   }
   
   .capsule-card {
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid #ccc;
-    padding: 1rem;
-    border-radius: 10px;
-    width: 250px;
-    transition: transform 0.2s ease;
-    position: relative;
-    color: #222;
+    margin: 0 5px;
   }
   
-  .capsule-card:hover {
-    transform: translateY(-5px);
-    background-color: #fff;
+  .empty-state {
+    padding: 40px 20px;
   }
   
-  .capsule-title {
-    font-weight: bold;
-    margin: 0.5rem 0;
-    color: #111;
+  .empty-icon {
+    font-size: 3rem;
   }
-  
-  .capsule-summary {
-    font-size: 0.9rem;
-    color: #444;
-  }
-  
-  .capsule-delete {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    border: none;
-    background: transparent;
-    font-size: 1.2rem;
-    cursor: pointer;
-    color: #cc0000;
-  }
-  
-  .capsule-delete:hover {
-    color: #ff0000;
-  }
+}
