@@ -22,8 +22,8 @@ router.get('/:date', async (req, res) => {
 
     const articles = response.data.response.results.slice(0, 6).map(article => {
       const fullText = article.fields?.bodyText || '';
-      const summary = fullText.length > 300
-        ? fullText.slice(0, 300) + '...'
+      const summary = fullText.length > 500
+        ? fullText.slice(0, 500) + '...'
         : fullText;
 
       return {
