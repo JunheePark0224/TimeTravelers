@@ -13,8 +13,8 @@ router.get('/:date', async (req, res) => {
       params: {
         'from-date': date,
         'to-date': date,
-        'order-by': 'relevance', // 또는 newest
-        'show-fields': 'headline,trailText,bodyText', // bodyText 추가!
+        'order-by': 'relevance', 
+        'show-fields': 'headline,trailText,bodyText', 
         'page-size': 6,
         'api-key': GUARDIAN_API_KEY
       }

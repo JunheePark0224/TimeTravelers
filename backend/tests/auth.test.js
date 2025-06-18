@@ -169,7 +169,6 @@ describe('Authentication API Tests', () => {
     });
   });
 
-  // TODO: Add success cases when Mock issues are resolved
   describe('Future Tests', () => {
     test.todo('should login successfully with valid credentials');
     test.todo('should register successfully with valid data');

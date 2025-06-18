@@ -5,12 +5,12 @@ const router = express.Router();
 // Import route modules
 const authRoutes = require('./auth');
 const capsuleRoutes = require('./capsules');
-const timeDataRoutes = require('./timeData'); // 새로 추가!
+const timeDataRoutes = require('./timeData'); 
 
 // Use routes
 router.use('/auth', authRoutes);
 router.use('/capsules', capsuleRoutes);
-router.use('/time-data', timeDataRoutes); // 새로 추가!
+router.use('/time-data', timeDataRoutes); 
 
 // Health check route
 router.get('/health', (req, res) => {
@@ -22,7 +22,7 @@ router.get('/health', (req, res) => {
     availableEndpoints: {
       auth: '/api/auth/*',
       capsules: '/api/capsules/*',
-      timeData: '/api/time-data/*', // 새로 추가!
+      timeData: '/api/time-data/*', 
       health: '/api/health'
     }
   });

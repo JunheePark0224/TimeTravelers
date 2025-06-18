@@ -16,7 +16,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* 🔄 통일 */
+    overflow: hidden; /* 통일 */
   }
   
   /* 어두운 오버레이 */

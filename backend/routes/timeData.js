@@ -41,11 +41,10 @@ const fetchWeatherData = async (date, latitude, longitude, timezone, cityName) =
   }
 };
 
-// News API 함수 (추후 구현)
+// News API 함수 
 const fetchNewsData = async (date) => {
   try {
-    // TODO: 실제 News API 통합
-    // 현재는 더미 데이터 반환
+   
     return {
       headlines: [
         {
@@ -67,10 +66,9 @@ const fetchNewsData = async (date) => {
   }
 };
 
-// Music API 함수 (추후 구현)
+// Music API 함수
 const fetchMusicData = async (date) => {
   try {
-    // TODO: Last.fm API 또는 Spotify API 통합
     return {
       topSongs: [
         {
@@ -91,10 +89,8 @@ const fetchMusicData = async (date) => {
   }
 };
 
-// Movie API 함수 (추후 구현)
 const fetchMovieData = async (date) => {
   try {
-    // TODO: TMDb API 통합
     return {
       popularMovies: [
         {

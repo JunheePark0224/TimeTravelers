@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const { getBLSPrices } = require('../config/bls'); // ✅ BLS 함수 불러오기
+const { getBLSPrices } = require('../config/bls'); // BLS 함수 불러오기
 
 // 환율 데이터 가져오기
 const getExchangeRates = async (date) => {
@@ -23,7 +23,7 @@ const getExchangeRates = async (date) => {
 // 소비자물가 데이터 (BLS 기반으로 시도하고, 실패하면 fallback 고정값 사용)
 const getConsumerPrices = async (date) => {
   try {
-    const prices = await getBLSPrices(date); // ✅ 실제 BLS 요청
+    const prices = await getBLSPrices(date); // 실제 BLS 요청
     return prices;
   } catch (err) {
     console.error('🔻 Failed to fetch BLS data, using fallback values');

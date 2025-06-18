@@ -15,7 +15,7 @@ const TimeResultPage = () => {
   const selectedDate = location.state?.selectedDate || "1995-03-15";
   const isLoggedIn = isAuthenticated;
 
-  // 🔥 MyPage에서 온 캡슐 데이터 확인
+  // MyPage에서 온 캡슐 데이터 확인
   const fromMyPage = location.state?.fromMyPage || false;
   const savedCapsuleData = location.state?.capsuleData || null;
 
@@ -257,7 +257,7 @@ const TimeResultPage = () => {
     }
   };
 
-  // 🔥 저장된 캡슐 데이터 로드 함수
+  // 저장된 캡슐 데이터 로드 함수
   const loadSavedCapsuleData = () => {
     if (savedCapsuleData && savedCapsuleData.historical_data) {
       try {
@@ -696,7 +696,7 @@ const TimeResultPage = () => {
               💎 Want to save this time capsule and share it with friends?
             </h3>
 
-            {/* 🔥 MyPage에서 온 경우 다른 메시지 표시 */}
+            {/* MyPage에서 온 경우 다른 메시지 표시 */}
             {fromMyPage ? (
               <p style={{ marginBottom: '20px', color: '#666', fontSize: '14px' }}>
                 ✨ This is your saved time capsule from {formatDateForDisplay(selectedDate)}!
@@ -712,7 +712,7 @@ const TimeResultPage = () => {
             )}
 
             <div className="save-buttons">
-              {/* 🔥 MyPage에서 온 경우 저장 버튼 숨기기 */}
+              {/* MyPage에서 온 경우 저장 버튼 숨기기 */}
               {!fromMyPage && (
                 <button
                   onClick={handleSaveCapsule}
@@ -737,7 +737,7 @@ const TimeResultPage = () => {
                 ← RETURN TO TIME MACHINE
               </button>
 
-              {/* 🔥 MyPage에서 온 경우 MyPage로 돌아가는 버튼 추가 */}
+              {/* MyPage에서 온 경우 MyPage로 돌아가는 버튼 추가 */}
               {fromMyPage && (
                 <button
                   onClick={() => navigate('/mypage')}
