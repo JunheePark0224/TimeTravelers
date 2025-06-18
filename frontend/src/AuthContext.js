@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
 
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-  // 🔥 핵심: 앱 시작 시 서버에서 인증 상태 확인
+  // 핵심: 앱 시작 시 서버에서 인증 상태 확인
   const checkAuthStatus = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/check-auth`, {

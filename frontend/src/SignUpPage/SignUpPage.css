@@ -34,10 +34,10 @@
     background: rgba(255, 248, 240, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 16px;
-    padding: 29px ; /* ⬅️ 위아래 여백 줄임 */
+    padding: 29px ; /* 위아래 여백 줄임 */
     width: 90%;
     max-width: 500px;
-    max-height: 90vh;  /* ⬅️ 카드 자체 높이 줄임 */
+    max-height: 90vh;  /* 카드 자체 높이 줄임 */
     overflow: hidden;  /* 내부 스크롤 제거 */
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.2);

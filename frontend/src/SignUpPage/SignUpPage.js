@@ -7,12 +7,12 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api
 function SignUpPage() {
   const navigate = useNavigate();
   
-  // ✅ 모든 필드를 빈 문자열로 초기화 (undefined 방지)
+  // 모든 필드를 빈 문자열로 초기화 (undefined 방지)
   const [formData, setFormData] = useState({
     email: '',
     name: '',
     password: '',
-    dateOfBirth: '' // ✅ date input을 위한 단일 필드
+    dateOfBirth: '' // date input을 위한 단일 필드
   });
 
   const [errors, setErrors] = useState({});
@@ -55,11 +55,11 @@ function SignUpPage() {
     // 비밀번호 검증
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) { // ✅ 백엔드와 일치시킴
+    } else if (formData.password.length < 6) { // 백엔드와 일치시킴
       newErrors.password = 'Password must be at least 6 characters';
     }
     
-    // ✅ 생년월일 검증 수정
+    // 생년월일 검증 수정
     if (!formData.dateOfBirth) {
       newErrors.dateOfBirth = 'Please select your birth date';
     } else {
@@ -91,7 +91,7 @@ function SignUpPage() {
     setIsLoading(true);
     
     try {
-      // ✅ 실제 API 호출
+      // 실제 API 호출
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {

@@ -142,7 +142,7 @@ router.post('/logout', (req, res) => {
   });
 });
 
-// 🔥 간단한 인증 상태 확인 API
+// 간단한 인증 상태 확인 API
 router.get('/check-auth', (req, res) => {
   console.log('🔍 Check-auth 호출:', req.isAuthenticated());
   

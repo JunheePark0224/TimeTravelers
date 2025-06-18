@@ -14,7 +14,7 @@ const getBLSData = async (seriesIds, startYear, endYear) => {
   return response.data;
 };
 
-// ✅ 우리가 price.js에서 쓸 함수
+// 우리가 price.js에서 쓸 함수
 const getBLSPrices = async (dateString) => {
   const date = new Date(dateString);
   const year = date.getFullYear();

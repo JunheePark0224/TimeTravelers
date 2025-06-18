@@ -18,7 +18,7 @@
   box-sizing: border-box;
 }
 
-/* 🔥 어두운 오버레이 */
+/* 어두운 오버레이 */
 .mypage-container::before {
   content: '';
   position: fixed;
@@ -33,7 +33,7 @@
   pointer-events: none;
 }
 
-/* 🔥 모든 콘텐츠를 오버레이 위에 올리기 */
+/* 모든 콘텐츠를 오버레이 위에 올리기 */
 .mypage-header,
 .mypage-content,
 .bottom-actions,
@@ -45,7 +45,7 @@
   z-index: 10;
 }
 
-/* 🔥 헤더 섹션 */
+/* 헤더 섹션 */
 .mypage-header {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(15px);
@@ -101,7 +101,7 @@
   box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
 }
 
-/* 🔥 통계 섹션 */
+/* 통계 섹션 */
 .stats-container {
   display: flex;
   gap: 30px;
@@ -133,7 +133,7 @@
   font-weight: 500;
 }
 
-/* 🔥 Empty State */
+/* Empty State */
 .empty-state {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(15px);
@@ -184,7 +184,7 @@
   box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
 }
 
-/* 🔥 캡슐 그리드 */
+/* 캡슐 그리드 */
 .capsules-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -192,7 +192,7 @@
   padding: 20px 0;
 }
 
-/* 🔥 캡슐 카드 */
+/* 캡슐 카드 */
 .capsule-card {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(15px);
@@ -213,7 +213,7 @@
     0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
-/* 🔥 캡슐 헤더 */
+/* 캡슐 헤더 */
 .capsule-header {
   display: flex;
   justify-content: space-between;
@@ -257,7 +257,7 @@
   border: 1px solid rgba(118, 75, 162, 0.3);
 }
 
-/* 🔥 캡슐 컨텐츠 */
+/* 캡슐 컨텐츠 */
 .capsule-content {
   padding: 15px 20px 20px 20px;
   cursor: pointer;
@@ -312,7 +312,7 @@
   opacity: 1;
 }
 
-/* 🔥 캡슐 액션 버튼 */
+/* 캡슐 액션 버튼 */
 .capsule-actions {
   display: flex;
   gap: 10px;
@@ -354,7 +354,7 @@
   transform: translateY(-1px);
 }
 
-/* 🔥 하단 액션 */
+/* 하단 액션 */
 .bottom-actions {
   text-align: center;
   padding: 30px 0;
@@ -378,7 +378,7 @@
   box-shadow: 0 12px 30px rgba(245, 87, 108, 0.4);
 }
 
-/* 🔥 로딩 상태 */
+/* 로딩 상태 */
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -422,7 +422,7 @@
   font-size: 1.1rem;
 }
 
-/* 🔥 에러 상태 */
+/* 에러 상태 */
 .error-container {
   display: flex;
   flex-direction: column;
@@ -472,7 +472,7 @@
   box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
 }
 
-/* 🔥 반응형 디자인 */
+/* 반응형 디자인 */
 @media (max-width: 768px) {
   .mypage-container {
     padding: 1rem;
